@@ -61,7 +61,7 @@ function HomePage() {
   // ==========================================
   // AI-SEO & SCHEMA (YAPISAL VERİ) OLUŞTURUCU
   // ==========================================
-  const pageTitle = "Mapedia | Community-Built Encyclopedia of Places";
+  const pageTitle = "Mapedia | The Community-Built Encyclopedia of Places";
   const pageDesc = "Mapedia is a community-maintained, open database of geographical locations. Discover, document, and share practical details about places worldwide under CC BY-SA 4.0.";
 
   // WebSite Şeması: Google'a sitenizin bir marka/ansiklopedi olduğunu belirtir.
@@ -87,18 +87,18 @@ function HomePage() {
     <div className="home-container">
       {/* HELMET İLE SEO ETİKETLERİNİ BASIYORUZ */}
       <Helmet>
-        <title>Mapedia | Community-Built Encyclopedia of Places</title>
+        <title>Mapedia | The Community-Built Encyclopedia of Places</title>
         <meta name="description" content="Mapedia is a free, community-maintained open database of real-world venues. Discover water fountains, free toilets, cafes, parks and more — open data under CC BY-SA 4.0." />
         <link rel="canonical" href="https://mapedia.org" />
 
-        <meta property="og:title" content="Mapedia | Community-Built Encyclopedia of Places" />
+        <meta property="og:title" content="Mapedia | The Community-Built Encyclopedia of Places" />
         <meta property="og:description" content="5,700+ verified venues: water fountains, free toilets, laptop-friendly cafes and more. Community-built, open data under CC BY-SA 4.0. Free to use, forever." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mapedia.org" />
         <meta property="og:image" content="https://mapedia.org/og-image.png" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Mapedia | Community-Built Encyclopedia of Places" />
+        <meta name="twitter:title" content="Mapedia | The Community-Built Encyclopedia of Places" />
         <meta name="twitter:description" content="5,700+ verified venues: water fountains, free toilets, cafes and more. Open data, free forever." />
         <meta name="twitter:image" content="https://mapedia.org/og-image.png" />
 
