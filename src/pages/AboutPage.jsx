@@ -1,4 +1,5 @@
 // AboutPage.jsx
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import '../styles/HomePage.css'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,18 @@ import { Link } from 'react-router-dom'
 function AboutPage() {
   return (
     <div className="home-container">
+      <Helmet>
+        <title>About Mapedia | The Free Encyclopedia of Places</title>
+        <meta name="description" content="Learn about Mapedia — a community-maintained, open database of real-world venues. Free data, forever. Licensed under CC BY-SA 4.0." />
+        <link rel="canonical" href="https://mapedia.org/about" />
+        <meta property="og:title" content="About Mapedia | The Free Encyclopedia of Places" />
+        <meta property="og:description" content="Learn about Mapedia — a community-maintained, open database of real-world venues. Free data, forever." />
+        <meta property="og:url" content="https://mapedia.org/about" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="About Mapedia" />
+        <meta name="twitter:description" content="Community-maintained open database of real-world venues. CC BY-SA 4.0." />
+      </Helmet>
       <Navbar />
       <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
         <h1>About Mapedia</h1>

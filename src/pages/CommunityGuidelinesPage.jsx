@@ -1,4 +1,5 @@
 // CommunityGuidelinesPage.jsx
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import '../styles/HomePage.css'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,12 @@ import { Link } from 'react-router-dom'
 function CommunityGuidelinesPage() {
   return (
     <div className="home-container">
+      <Helmet>
+        <title>Community Guidelines | Mapedia</title>
+        <meta name="description" content="Mapedia's community guidelines for contributors. Learn how to add accurate venue data, moderate responsibly, and keep Mapedia a reliable open resource." />
+        <link rel="canonical" href="https://mapedia.org/guidelines" />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
         <h1>Community Guidelines</h1>

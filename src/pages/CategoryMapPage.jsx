@@ -321,12 +321,18 @@ function CategoryMapPage() {
   }, [markers, slug])
 
   const initialCenter = userLocation ? [userLocation.latitude, userLocation.longitude] : DEFAULT_CENTER
-  const pageTitle = category ? `${category.name} Haritası | Mapedia` : 'Harita | Mapedia';
+  const pageTitle = category ? `${category.name} Map | Mapedia` : 'Map | Mapedia';
 
   return (
     <div className="map-page">
       <Helmet>
         <title>{pageTitle}</title>
+        <meta name="description" content={category ? `Interactive map of ${category.name} venues on Mapedia. Explore locations, filter by features, and discover places near you.` : 'Interactive venue map on Mapedia.'} />
+        <link rel="canonical" href={`https://mapedia.org/category/${slug}/map`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={category ? `Interactive map of ${category.name} venues. Explore locations on Mapedia.` : 'Interactive venue map on Mapedia.'} />
+        <meta property="og:url" content={`https://mapedia.org/category/${slug}/map`} />
+        <meta property="og:type" content="website" />
         <meta name="robots" content="index, follow" />
       </Helmet>
 
@@ -338,19 +344,19 @@ function CategoryMapPage() {
           {/* YENİ: HARİTA ÜZERİNDE SÜZÜLEN (FLOATING) SADE KONTROLLER */}
           <div className="floating-ui-container">
             <Link to={`/category/${slug}`} className="floating-pill-btn">
-              ← Geri
+              ← Back
             </Link>
 
             <div className="floating-pill-status">
               {loading ? (
-                <span className="status-spinner">Yükleniyor...</span>
+                <span className="status-spinner">Loading...</span>
               ) : (
-                <span>{markers.length} Mekan</span>
+                <span>{markers.length} Venues</span>
               )}
             </div>
 
             <Link to={`/category/${slug}/venues`} className="floating-pill-btn">
-              ☰ Liste
+              ☰ List
             </Link>
           </div>
 
@@ -412,7 +418,7 @@ function CategoryMapPage() {
         <div className="filter-overlay" onClick={() => setFilterOpen(false)}>
           <div className="filter-drawer" onClick={e => e.stopPropagation()}>
             <div className="filter-drawer-header">
-              <h3>Filtrele</h3>
+              <h3>Filter</h3>
               <button onClick={() => setFilterOpen(false)} className="filter-close">✕</button>
             </div>
             
@@ -435,10 +441,10 @@ function CategoryMapPage() {
             
             <div className="filter-drawer-footer">
               <button onClick={clearFilters} className="btn-clear" disabled={activeFilterCount === 0}>
-                Temizle
+                Clear
               </button>
               <button onClick={() => setFilterOpen(false)} className="btn-apply">
-                Uygula
+                Apply
               </button>
             </div>
           </div>

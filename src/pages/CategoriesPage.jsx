@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
 import '../styles/CategoriesPage.css'
@@ -17,7 +18,6 @@ function CategoriesPage() {
   const [stats, setStats] = useState({ totalVenues: 0, totalCategories: 0 })
 
   useEffect(() => {
-    document.title = "Categories | Mapedia"
     loadCategories()
   }, [])
 
@@ -101,6 +101,18 @@ function CategoriesPage() {
 
   return (
     <div>
+      <Helmet>
+        <title>All Categories | Mapedia</title>
+        <meta name="description" content="Browse all community-maintained place categories on Mapedia — water fountains, free toilets, laptop-friendly cafes, and more. Free geodata under CC BY-SA 4.0." />
+        <link rel="canonical" href="https://mapedia.org/categories" />
+        <meta property="og:title" content="All Categories | Mapedia" />
+        <meta property="og:description" content="Browse all community-maintained place categories on Mapedia. Free geodata under CC BY-SA 4.0." />
+        <meta property="og:url" content="https://mapedia.org/categories" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="All Categories | Mapedia" />
+        <meta name="twitter:description" content="Browse all community-maintained place categories on Mapedia." />
+      </Helmet>
       <Navbar />
       <main className="categories-main">
         <div className="categories-container">

@@ -142,18 +142,28 @@ function CategoryVenuesPage() {
     )
   }
 
-  // Dinamik SEO Başlığı (Kopya içeriği önlemek için Sayfa numarası ekliyoruz)
-  const pageTitle = page > 1 
-    ? `${category?.name} Konumları - Sayfa ${page} | Mapedia`
-    : `Tüm ${category?.name} Konumları | Mapedia`;
+  // Dynamic SEO title (page number added to prevent duplicate content)
+  const pageTitle = page > 1
+    ? `${category?.name} Venues — Page ${page} | Mapedia`
+    : `All ${category?.name} Venues | Mapedia`;
+  const pageDesc = category
+    ? `Browse all ${category.name} venues on Mapedia. ${totalCount > 0 ? `${totalCount} verified locations` : 'Community-maintained locations'} with maps, details, and reviews.`
+    : 'Browse venues on Mapedia.';
 
   return (
     <div>
-      {/* HELMET İLE SAYFA BAŞLIĞINI SEO'YA UYGUN BASIYORUZ */}
       <Helmet>
         <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
         <meta name="robots" content={hasFilters ? "noindex, follow" : "index, follow"} />
-        <link rel="canonical" href={`https://mapedia.org${getPageUrl(page)}`} />
+        <link rel="canonical" href={`https://mapedia.org/category/${slug}/venues${page > 1 ? `?page=${page}` : ''}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={`https://mapedia.org/category/${slug}/venues`} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
       </Helmet>
 
       <Navbar />

@@ -1,4 +1,5 @@
 // TermsPage.jsx
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import '../styles/HomePage.css'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,12 @@ import { Link } from 'react-router-dom'
 function TermsPage() {
   return (
     <div className="home-container">
+      <Helmet>
+        <title>Terms of Service | Mapedia</title>
+        <meta name="description" content="Mapedia's terms of service. By using Mapedia you agree to contribute data under CC BY-SA 4.0 and follow community guidelines." />
+        <link rel="canonical" href="https://mapedia.org/terms" />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
         <h1>Terms of Service</h1>

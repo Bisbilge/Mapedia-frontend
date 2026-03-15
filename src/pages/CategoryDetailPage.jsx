@@ -110,6 +110,11 @@ function CategoryDetailPage() {
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://mapedia.org/category/${slug}`} />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://mapedia.org/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content="https://mapedia.org/og-image.png" />
         <script type="application/ld+json">
           {JSON.stringify(schemaData)}
         </script>

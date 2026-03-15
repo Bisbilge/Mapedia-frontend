@@ -488,17 +488,32 @@ function VenuePage() {
     : ''
   const pageDesc = `${venue.name} is a ${categoryNames || 'venue'}${location ? ` in ${location}` : ''}.${ratingSnippet} View location, features and reviews on Mapedia.`
 
-  // Schema: LocalBusiness tipi
+  // Schema: LocalBusiness type mapping
   const getGoogleSchemaType = (categories) => {
     if (!categories || categories.length === 0) return "LocalBusiness"
-    const slug = categories[0].category_slug.toLowerCase()
+    const s = categories[0].category_slug.toLowerCase()
     const typeMap = {
+      // English slugs
+      'restaurant': 'Restaurant', 'restaurants': 'Restaurant',
+      'cafe': 'CafeOrCoffeeShop', 'cafes': 'CafeOrCoffeeShop',
+      'coffee-shop': 'CafeOrCoffeeShop', 'coffee-shops': 'CafeOrCoffeeShop',
+      'laptop-friendly-cafes': 'CafeOrCoffeeShop',
+      'museum': 'Museum', 'museums': 'Museum',
+      'historic-site': 'TouristAttraction', 'historic-sites': 'TouristAttraction',
+      'tourist-attraction': 'TouristAttraction',
+      'park': 'Park', 'parks': 'Park',
+      'hotel': 'LodgingBusiness', 'hotels': 'LodgingBusiness',
+      'hostel': 'LodgingBusiness', 'hostels': 'LodgingBusiness',
+      'bar': 'BarOrPub', 'bars': 'BarOrPub',
+      'library': 'Library', 'libraries': 'Library',
+      'hospital': 'Hospital', 'pharmacy': 'Pharmacy',
+      'free-toilets': 'LocalBusiness', 'water-fountains': 'LocalBusiness',
+      // Turkish slugs (legacy)
       'vegan': 'Restaurant', 'restoran': 'Restaurant',
       'kafe': 'CafeOrCoffeeShop', 'muze': 'Museum',
-      'tarihi-yer': 'TouristAttraction', 'park': 'Park',
-      'otel': 'LodgingBusiness'
+      'tarihi-yer': 'TouristAttraction', 'otel': 'LodgingBusiness'
     }
-    return typeMap[slug] || "LocalBusiness"
+    return typeMap[s] || "LocalBusiness"
   }
 
   const schemaData = {
@@ -560,7 +575,13 @@ function VenuePage() {
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://mapedia.org/venue/${venueSlug}`} />
         <meta property="og:type" content="place" />
-        {venue.image && <meta property="og:image" content={venue.image} />}
+        <meta property="og:image" content={venue.image || "https://mapedia.org/og-image.png"} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content={venue.image || "https://mapedia.org/og-image.png"} />
 
         {/* LocalBusiness Schema */}
         <script type="application/ld+json">

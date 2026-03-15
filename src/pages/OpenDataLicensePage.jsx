@@ -1,4 +1,5 @@
 // OpenDataLicensePage.jsx
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import '../styles/HomePage.css'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,15 @@ import { Link } from 'react-router-dom'
 function OpenDataLicensePage() {
   return (
     <div className="home-container">
+      <Helmet>
+        <title>Open Data License | Mapedia</title>
+        <meta name="description" content="All Mapedia venue data is published under Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0). Free to use, share, and build upon." />
+        <link rel="canonical" href="https://mapedia.org/license" />
+        <meta property="og:title" content="Open Data License | Mapedia" />
+        <meta property="og:description" content="All Mapedia venue data is published under CC BY-SA 4.0 — free to use, share, and build upon forever." />
+        <meta property="og:url" content="https://mapedia.org/license" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <Navbar />
       <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
         <h1>Open Data License</h1>

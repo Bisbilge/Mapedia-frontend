@@ -1,10 +1,17 @@
 // PrivacyPage.jsx
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import '../styles/HomePage.css'
 
 function PrivacyPage() {
   return (
     <div className="home-container">
+      <Helmet>
+        <title>Privacy Policy | Mapedia</title>
+        <meta name="description" content="Mapedia's privacy policy — GDPR-compliant. We collect minimal data, never sell it, and host entirely within the EU. Read how we handle your personal information." />
+        <link rel="canonical" href="https://mapedia.org/privacy" />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
         <h1>Privacy Policy</h1>
