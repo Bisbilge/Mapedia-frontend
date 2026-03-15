@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Navbar from '../components/Navbar';
 import api from '../api/client';
 import '../styles/ProfilePage.css';
@@ -935,7 +936,7 @@ function ProfilePage() {
         }
         
       } catch (err) {
-        console.error("Profil çekilirken hata oluştu:", err);
+        console.error("Failed to load profile:", err);
         if (err.response?.status === 401) {
           localStorage.removeItem('access');
           localStorage.removeItem('refresh');
@@ -1021,6 +1022,12 @@ function ProfilePage() {
 
   return (
     <div>
+      <Helmet>
+        <title>{profile.username} | Mapedia</title>
+        <meta name="description" content={`${profile.username}'s profile on Mapedia. View their contributions, ratings, and moderated categories.`} />
+        <link rel="canonical" href={`https://mapedia.org/profile/${profile.username}`} />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="profile-main">
         <div className="profile-layout">

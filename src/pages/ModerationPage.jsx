@@ -48,7 +48,7 @@ function FieldManager({ categorySlug, token }) {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setFields(res.data))
-      .catch(err => console.error('Fields yüklenemedi:', err))
+      .catch(err => console.error('Failed to load fields:', err))
       .finally(() => setLoading(false))
   }
 
@@ -458,7 +458,7 @@ function VenueManager({ categorySlug, token }) {
           setTotalCount(res.data.length)
         }
       })
-      .catch(err => console.error('Venues yüklenemedi:', err))
+      .catch(err => console.error('Failed to load venues:', err))
       .finally(() => setLoading(false))
   }
 
@@ -468,7 +468,7 @@ function VenueManager({ categorySlug, token }) {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(() => loadVenues())
-      .catch(err => console.error('Silinemedi:', err))
+      .catch(err => console.error('Delete failed:', err))
   }
 
   const handleSearch = (e) => {
@@ -722,7 +722,7 @@ function ModerationPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setCategories(res.data))
-      .catch(err => console.error('Kategoriler yüklenemedi:', err))
+      .catch(err => console.error('Failed to load categories:', err))
       .finally(() => setLoading(false))
   }
 
@@ -731,7 +731,7 @@ function ModerationPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setContributions(res.data))
-      .catch(err => console.error('Başvurular yüklenemedi:', err))
+      .catch(err => console.error('Failed to load contributions:', err))
       .finally(() => setLoading(false))
   }
 
@@ -751,7 +751,7 @@ function ModerationPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(() => { setContributions(prev => prev.filter(c => c.id !== id)); setSelected(null) })
-      .catch(err => console.error('Onay hatası:', err))
+      .catch(err => console.error('Approval error:', err))
       .finally(() => setProcessing(false))
   }
 
@@ -766,7 +766,7 @@ function ModerationPage() {
         setSelected(null)
         setRejectNote('')
       })
-      .catch(err => console.error('Red hatası:', err))
+      .catch(err => console.error('Rejection error:', err))
       .finally(() => setProcessing(false))
   }
 

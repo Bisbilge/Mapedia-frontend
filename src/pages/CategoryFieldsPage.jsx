@@ -55,7 +55,7 @@ function CategoryFieldsPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setFields(res.data))
-      .catch(err => console.error('Fields yüklenemedi:', err))
+      .catch(err => console.error('Failed to load fields:', err))
       .finally(() => setLoading(false))
   }
 

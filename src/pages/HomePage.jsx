@@ -49,7 +49,7 @@ function HomePage() {
         });
 
       } catch (err) {
-        console.error("Veri çekilirken hata oluştu:", err);
+        console.error("Failed to load home data:", err);
         setError("Failed to load data. Please try again later.");
       } finally {
         setIsLoading(false);

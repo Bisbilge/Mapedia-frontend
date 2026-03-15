@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
 import '../styles/ContributePage.css'
@@ -72,6 +73,10 @@ function RegisterPage() {
 
   return (
     <div>
+      <Helmet>
+        <title>Create an Account | Mapedia</title>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="contribute-main">
         <div className="contribute-box">

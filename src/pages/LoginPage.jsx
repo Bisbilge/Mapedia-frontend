@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
 import '../styles/AuthPage.css'
@@ -36,6 +37,10 @@ function LoginPage() {
 
   return (
     <div>
+      <Helmet>
+        <title>Log In | Mapedia</title>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       <Navbar />
       <main className="auth-main">
         <div className="auth-box">
