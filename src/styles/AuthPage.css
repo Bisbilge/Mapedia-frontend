@@ -6,17 +6,22 @@
 
 .auth-box {
   border: 1px solid var(--border);
-  padding: 32px;
-  background: white;
+  background: var(--bg-elevated);
 }
 
 .auth-title {
   font-family: 'Linux Libertine', serif;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: normal;
-  margin-bottom: 24px;
-  padding-bottom: 8px;
+  margin: 0;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  color: var(--text);
+}
+
+.auth-form-body {
+  padding: 24px;
 }
 
 .auth-error {
@@ -87,4 +92,51 @@
   color: var(--text-light);
   margin-top: 16px;
   text-align: center;
+}
+
+.auth-google {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-divider span {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 480px) {
+  .auth-main {
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  .auth-form-body {
+    padding: 16px;
+  }
+
+  .auth-field input {
+    padding: 12px 10px;
+  }
+
+  .auth-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
 }

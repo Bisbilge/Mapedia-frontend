@@ -1,405 +1,476 @@
-.fields-box {
-  max-width: 640px;
+/* CategoryFieldsPage.css */
+
+.cf-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
 }
 
-.fields-header {
+/* ── Header ── */
+.cf-header {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 4px;
-}
-
-.fields-slug {
-  font-size: 13px;
-  color: var(--text-light);
-}
-
-.fields-actions {
-  margin-bottom: 20px;
-}
-
-.btn-secondary {
-  font-size: 13px;
-  color: var(--link);
-  text-decoration: none;
-}
-
-.btn-secondary:hover {
-  text-decoration: underline;
-}
-
-.fields-empty {
-  color: var(--text-light);
-  font-size: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 0 24px;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 24px;
 }
 
-/* FIELD LIST */
-.fields-list {
+.cf-back-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--link);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+  display: block;
+}
+.cf-back-btn:hover { text-decoration: underline; }
+
+.cf-title {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 26px;
+  font-weight: normal;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.cf-slug {
+  font-size: 22px;
+  color: var(--text-light);
+}
+
+.cf-subtitle {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cf-step-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--link);
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* ── Field list ── */
+.cf-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 28px 0;
+  margin: 0 0 16px;
   border: 1px solid var(--border);
 }
 
-.field-item {
+.cf-item {
   border-bottom: 1px solid var(--border);
-  padding: 12px 14px;
 }
+.cf-item:last-child { border-bottom: none; }
 
-.field-item:last-child {
-  border-bottom: none;
-}
-
-.field-row {
+/* ── Field row (display mode) ── */
+.cf-field-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  padding: 12px 16px;
 }
 
-.field-info {
+.cf-field-info {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
 }
 
-.field-label {
+.cf-field-label {
   font-size: 14px;
   font-weight: 600;
   color: var(--text);
 }
 
-.field-type-badge {
-  font-size: 11px;
-  background: var(--accent);
+.cf-field-type {
+  font-size: 12px;
+  background: var(--nav-bg);
   border: 1px solid var(--border);
-  padding: 1px 6px;
+  padding: 2px 7px;
   color: var(--text-light);
 }
 
-.field-badge {
-  font-size: 11px;
-  padding: 1px 6px;
-  border: 1px solid var(--border);
-}
-
-.field-badge.required {
-  color: #c00;
-  border-color: #c00;
-}
-
-.field-badge.public {
-  color: #060;
-  border-color: #060;
-}
-
-.field-help {
-  width: 100%;
+.cf-field-meta {
   font-size: 12px;
   color: var(--text-light);
 }
 
-.field-btns {
+.cf-badge {
+  font-size: 11px;
+  padding: 2px 7px;
+  border: 1px solid;
+}
+
+.cf-badge--required { color: #c00; border-color: #c00; }
+
+.cf-field-help {
+  width: 100%;
+  font-size: 12px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.cf-field-btns {
   display: flex;
   gap: 6px;
   flex-shrink: 0;
 }
 
-.btn-edit, .btn-delete, .btn-save, .btn-cancel {
+.cf-btn-edit, .cf-btn-delete {
   font-size: 12px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
   font-family: inherit;
 }
+.cf-btn-edit:hover { background: var(--accent); border-color: var(--link); color: var(--link); }
+.cf-btn-delete { color: #c00; border-color: #c00; }
+.cf-btn-delete:hover { background: #fff0f0; }
 
-.btn-edit:hover, .btn-save:hover { background: var(--accent); }
+/* ── Empty state ── */
+.cf-empty { color: var(--text-light); font-size: 14px; margin: 0 0 20px; }
 
-.btn-delete {
-  color: #c00;
-  border-color: #c00;
+.cf-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px dashed var(--border);
+  margin-bottom: 16px;
+}
+.cf-empty-icon { font-size: 32px; margin-bottom: 12px; }
+.cf-empty-state p { margin: 0 0 6px; font-size: 15px; color: var(--text); }
+.cf-empty-hint { font-size: 13px; color: var(--text-light) !important; }
+
+/* ── Add / Edit wrapper ── */
+.cf-add-wrapper, .cf-edit-wrapper {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 20px;
+  margin-bottom: 16px;
 }
 
-.btn-delete:hover { background: #fff0f0; }
+.cf-edit-wrapper {
+  border-color: var(--link);
+}
 
-.btn-cancel { color: var(--text-light); }
+.cf-edit-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
 
-/* EDIT FORM */
-.field-edit-form {
+/* ── Field form ── */
+.cf-field-form {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+.cf-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cf-form-field--dimmed {
+  opacity: 0.65;
+}
+
+.cf-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
   gap: 8px;
 }
 
-.field-input, .field-select {
-  width: 100%;
-  padding: 6px 10px;
+.cf-label-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-light);
+}
+
+.cf-label-locked {
+  color: #c00;
+}
+
+.cf-input {
+  padding: 9px 12px;
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
   outline: none;
+  background: var(--bg-elevated);
+  color: var(--text);
+  width: 100%;
   box-sizing: border-box;
 }
+.cf-input:focus { border-color: var(--link); }
+.cf-input:disabled { opacity: 0.5; cursor: not-allowed; background: var(--nav-bg); }
 
-.field-input:focus, .field-select:focus {
-  border-color: var(--link);
+.cf-input--mono { font-family: monospace; font-size: 13px; }
+
+.cf-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  line-height: 1.4;
 }
 
-.field-checkboxes {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-}
-
-.field-edit-btns {
-  display: flex;
+/* ── Type grid ── */
+.cf-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
-/* ADD TITLE */
-.fields-add-title {
-  font-family: 'Linux Libertine', serif;
-  font-size: 18px;
-  font-weight: normal;
-  margin: 0 0 16px 0;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-
-/* DONE BUTTON */
-.fields-done {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-/* Choice Field Styles */
-.field-choices-section {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-.field-choices-header {
+.cf-type-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 0.1s, background 0.1s;
 }
 
-.field-choices-header h4 {
-  margin: 0;
-  font-size: 15px;
-  color: var(--text);
+.cf-type-card:hover:not(:disabled) {
+  border-color: var(--link);
+  background: var(--accent);
 }
 
-.field-choices-hint {
-  font-size: 13px;
-  color: var(--text-light);
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background: var(--bg-light);
-  border-radius: 6px;
+.cf-type-card--active {
+  border-color: var(--link);
+  background: var(--accent);
 }
 
-.field-choices-list {
+.cf-type-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cf-type-icon { font-size: 18px; margin-bottom: 2px; }
+.cf-type-name { font-size: 12px; font-weight: 700; color: var(--text); }
+.cf-type-desc { font-size: 11px; color: var(--text-light); line-height: 1.3; }
+
+/* ── Choices editor ── */
+.cf-choices {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.field-choice-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  background: var(--bg-light);
-  border-radius: 6px;
+  padding: 16px;
+  background: var(--nav-bg);
   border: 1px solid var(--border);
 }
 
-.field-choice-order {
+.cf-choices-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cf-choices-header small { font-weight: 400; color: var(--text-light); }
+
+.cf-choices-add {
+  background: none;
+  border: 1px dashed var(--border);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--link);
+  cursor: pointer;
+  padding: 3px 10px;
+}
+.cf-choices-add:hover { border-color: var(--link); background: var(--bg-elevated); }
+
+.cf-choice-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 8px;
+}
+
+.cf-choice-reorder {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.field-choice-move {
-  width: 24px;
-  height: 20px;
-  padding: 0;
+.cf-choice-reorder button {
+  width: 22px;
+  height: 18px;
   border: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: 3px;
+  background: var(--nav-bg);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-light);
-}
-
-.field-choice-move:hover:not(:disabled) {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-}
-
-.field-choice-move:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.field-choice-value {
-  flex: 1;
-  min-width: 120px;
-}
-
-.field-choice-label {
-  flex: 1.5;
-  min-width: 150px;
-}
-
-.field-choice-icon {
-  width: 100px;
-}
-
-.field-choice-row input {
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.field-choice-row input:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-.field-choice-row input:disabled {
-  background: var(--bg-light);
-  color: var(--text-light);
-}
-
-.field-choice-remove {
-  width: 28px;
-  height: 28px;
   padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cf-choice-reorder button:hover:not(:disabled) { background: var(--link); color: #fff; border-color: var(--link); }
+.cf-choice-reorder button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.cf-choice-remove {
+  width: 26px;
+  height: 26px;
   border: none;
   background: transparent;
-  color: var(--danger, #dc3545);
+  color: #c00;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 4px;
+  font-size: 14px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cf-choice-remove:hover:not(:disabled) { background: #fff0f0; }
+.cf-choice-remove:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Advanced section ── */
+.cf-form-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
-.field-choice-remove:hover {
-  background: rgba(220, 53, 69, 0.1);
+.cf-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.field-choice-remove:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.field-btn-add-choice {
-  padding: 6px 12px;
-  background: var(--bg);
-  border: 1px dashed var(--border);
-  border-radius: 4px;
-  color: var(--primary);
+.cf-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 13px;
   cursor: pointer;
 }
 
-.field-btn-add-choice:hover {
-  border-color: var(--primary);
-  background: rgba(var(--primary-rgb), 0.05);
+.cf-checkbox-label input { margin-top: 2px; flex-shrink: 0; }
+
+/* ── Buttons ── */
+.cf-form-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
-.field-choices-note {
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--text-light);
-}
-
-.field-choices-note strong {
-  color: var(--text);
-}
-
-.field-modal-large {
-  max-width: 700px;
-  width: 95%;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-
-.field-type-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  background: var(--bg-light);
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.field-choices-count {
-  margin-left: 6px;
-  font-size: 11px;
-  color: var(--text-light);
-}
-
-.field-btn-choices {
-  padding: 4px 8px;
-  background: var(--bg-light);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 12px;
+.cf-btn-save {
+  padding: 9px 22px;
+  background: var(--link);
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
+.cf-btn-save:hover:not(:disabled) { opacity: 0.88; }
+.cf-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.field-btn-choices:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+.cf-btn-cancel {
+  padding: 9px 18px;
+  background: var(--bg-elevated);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cf-btn-cancel:hover { color: var(--text); border-color: var(--text-light); }
+
+.cf-btn-add-field {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--link);
+  text-align: center;
+  margin-bottom: 16px;
+}
+.cf-btn-add-field:hover { border-color: var(--link); background: var(--accent); }
+
+.cf-done-row {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 
-/* CategoryFieldsPage.css - Eklemeler */
-
-.page-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px 16px;
+.cf-btn-done {
+  padding: 10px 22px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
 }
+.cf-btn-done:hover { border-color: var(--link); color: var(--link); }
 
-.field-error {
+/* ── Error ── */
+.cf-error {
+  padding: 10px 14px;
+  background: #fff0f0;
+  border: 1px solid #f5c6cb;
   color: #c00;
   font-size: 13px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
+[data-theme="dark"] .cf-error { background: #2e0d0d; border-color: #7a2020; color: #f47c7c; }
 
-/* Choice field hint for type */
-.field-choices-section h4 {
-  font-family: 'Linux Libertine', serif;
-  font-weight: normal;
-}
-
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 600px) {
-  .field-choice-row {
-    flex-wrap: wrap;
-  }
-  
-  .field-choice-order {
-    flex-direction: row;
-  }
-  
-  .field-choice-value,
-  .field-choice-label {
-    min-width: 100%;
-    flex: none;
-  }
-  
-  .field-choice-icon {
-    flex: 1;
-  }
+  .cf-page { padding: 0 14px 60px; }
+
+  .cf-header { flex-direction: column; gap: 10px; }
+  .cf-step-badge { align-self: flex-start; }
+
+  .cf-type-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .cf-choice-row { flex-wrap: wrap; }
+
+  .cf-form-btns { flex-direction: column; }
+  .cf-btn-save, .cf-btn-cancel { text-align: center; }
+}
+
+@media (max-width: 400px) {
+  .cf-type-grid { grid-template-columns: repeat(2, 1fr); }
 }

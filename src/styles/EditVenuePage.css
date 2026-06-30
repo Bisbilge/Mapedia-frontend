@@ -11,7 +11,7 @@
 .edit-venue-box {
   border: 1px solid var(--border);
   padding: 32px;
-  background: white;
+  background: var(--bg-elevated);
 }
 
 .edit-venue-title {
@@ -148,7 +148,7 @@
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
-  background: white;
+  background: var(--bg-elevated);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -163,7 +163,7 @@
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
-  background: white;
+  background: var(--bg-elevated);
   outline: none;
   min-height: 80px;
   resize: vertical;
@@ -194,7 +194,7 @@
   padding: 6px 16px;
   font-size: 13px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   transition: all 0.12s;
 }
 
@@ -251,7 +251,7 @@
 .btn-add-field {
   padding: 4px 12px;
   border: 1px solid var(--link);
-  background: white;
+  background: var(--bg-elevated);
   color: var(--link);
   font-size: 12.5px;
   font-family: inherit;
@@ -260,7 +260,7 @@
 }
 
 .btn-add-field:hover {
-  background: #f0f4ff;
+  background: var(--accent);
 }
 
 /* ── MESSAGES ─────────────────────────────────────────────────────── */
@@ -316,7 +316,7 @@
 
 .btn-secondary {
   padding: 8px 20px;
-  background: white;
+  background: var(--bg-elevated);
   color: var(--link);
   border: 1px solid var(--link);
   font-size: 13px;
@@ -326,7 +326,7 @@
 }
 
 .btn-secondary:hover {
-  background: #f0f4ff;
+  background: var(--accent);
 }
 
 /* ── ADD CATEGORY SECTION ─────────────────────────────────────────── */

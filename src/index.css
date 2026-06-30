@@ -10,6 +10,7 @@
 
 :root {
   --bg: #ffffff;
+  --bg-elevated: #ffffff;
   --text: #202122;
   --text-light: #54595d;
   --border: #a2a9b1;
@@ -19,6 +20,28 @@
   --header-bg: #ffffff;
   --nav-bg: #f8f9fa;
   --nav-border: #a2a9b1;
+
+  /* Mobile safe area (overridden by JS on Capacitor) */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --bg-elevated: #242424;
+  --text: #e8e8e8;
+  --text-light: #a0a0a0;
+  --border: #3a3a3a;
+  --link: #6699ff;
+  --link-hover: #99bbff;
+  --accent: #1e2a3a;
+  --header-bg: #1e1e1e;
+  --nav-bg: #242424;
+  --nav-border: #3a3a3a;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 body {
@@ -47,6 +70,40 @@ input, select, textarea, button {
   font-family: inherit;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE — Global touch & usability improvements
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Prevent text size adjustment on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Minimum touch target size (44px) for all interactive elements */
+@media (max-width: 768px) {
+  button, [role="button"], .navbar-link, .navbar-btn-login,
+  .navbar-btn-register, .navbar-logout, .auth-btn,
+  .hero-btn-primary, .hero-btn-secondary,
+  .home-side-btn-primary, .home-side-btn-secondary {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    min-height: 44px;
+  }
+
+  /* Wider tap areas for links in lists */
+  .home-cat-link,
+  .home-recent-link {
+    padding: 6px 0;
+  }
+}
+
 /* Footer her zaman en altta */
 #root {
   min-height: 100vh;
@@ -56,4 +113,176 @@ input, select, textarea, button {
 
 .home-container {
   flex: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE — Global overrides for hardcoded colors
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Form controls ── */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+[data-theme="dark"] .field-input,
+[data-theme="dark"] .field-textarea,
+[data-theme="dark"] .field-select {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-light) !important;
+}
+
+[data-theme="dark"] input:disabled,
+[data-theme="dark"] .input-selected {
+  background: #2e2e2e !important;
+}
+
+
+/* ── Boxes / Cards ── */
+[data-theme="dark"] .contribute-box,
+[data-theme="dark"] .auth-box,
+[data-theme="dark"] .mod-content-full,
+[data-theme="dark"] .mod-tabs {
+  background: var(--bg-elevated) !important;
+}
+
+/* ── Buttons with white backgrounds ── */
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .btn-clear,
+[data-theme="dark"] .btn-tag-add,
+[data-theme="dark"] .contrib-filter-btn,
+[data-theme="dark"] .venue-page-btn,
+[data-theme="dark"] .categories-page-btn,
+[data-theme="dark"] .profile-page-btn {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .contrib-filter-btn.active,
+[data-theme="dark"] .venue-page-btn-active,
+[data-theme="dark"] .categories-page-btn-active,
+[data-theme="dark"] .profile-page-btn-active {
+  background: var(--link) !important;
+  color: white !important;
+  border-color: var(--link) !important;
+}
+
+/* ── Table rows ── */
+[data-theme="dark"] .contrib-table th,
+[data-theme="dark"] .categories-table thead tr,
+[data-theme="dark"] .mod-header-row {
+  background: var(--bg) !important;
+}
+
+[data-theme="dark"] .contrib-row:hover,
+[data-theme="dark"] .category-suggestion-item:hover,
+[data-theme="dark"] tr:hover {
+  background: var(--accent) !important;
+}
+
+[data-theme="dark"] .contrib-row-selected {
+  background: #1e2a3a !important;
+}
+
+[data-theme="dark"] .contrib-detail {
+  background: var(--bg) !important;
+}
+
+/* ── Category suggestions dropdown ── */
+[data-theme="dark"] .category-suggestions,
+[data-theme="dark"] .category-no-results {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .category-suggestion-item {
+  border-color: var(--border) !important;
+}
+
+/* ── Boolean / choice field labels ── */
+[data-theme="dark"] .bool-label,
+[data-theme="dark"] .field-choice-option,
+[data-theme="dark"] .field-multichoice-option {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .field-boolean-option:hover .bool-label {
+  background: var(--accent) !important;
+}
+
+/* ── Status badges — keep semantic colors but adjust bg ── */
+[data-theme="dark"] .contrib-status-pending {
+  background: #3a2e00 !important;
+  color: #ffd966 !important;
+}
+
+[data-theme="dark"] .contrib-status-approved {
+  background: #0d2e1f !important;
+  color: #4caf82 !important;
+}
+
+[data-theme="dark"] .contrib-status-rejected {
+  background: #2e0d0d !important;
+  color: #f47c7c !important;
+}
+
+[data-theme="dark"] .contrib-pending-badge {
+  background: #3a2e00 !important;
+  color: #ffd966 !important;
+}
+
+/* ── Error / warning boxes ── */
+[data-theme="dark"] .auth-error,
+[data-theme="dark"] .contribute-error {
+  background: #2e0d0d !important;
+  color: #f47c7c !important;
+  border-color: #7a2020 !important;
+}
+
+[data-theme="dark"] .contrib-mod-note {
+  background: #3a2e00 !important;
+  color: #ffd966 !important;
+}
+
+/* ── Hero secondary button ── */
+[data-theme="dark"] .hero-btn-secondary {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── Venue / Category pages ── */
+[data-theme="dark"] .venue-info-box,
+[data-theme="dark"] .venue-nearby,
+[data-theme="dark"] .venue-related,
+[data-theme="dark"] .category-context {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .top-category {
+  background: #1e2a10 !important;
+}
+
+[data-theme="dark"] .categories-info-box {
+  background: var(--accent) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── Profile ── */
+[data-theme="dark"] .profile-tab,
+[data-theme="dark"] .profile-tabs {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border) !important;
+}
+
+/* ── Map tiles (Leaflet) ── */
+[data-theme="dark"] .leaflet-tile {
+  filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
 }

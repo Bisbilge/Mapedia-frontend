@@ -20,6 +20,8 @@ function Footer() {
         <nav className="footer-links">
           <Link to="/about">About</Link>
           <Link to="/guidelines">Guidelines</Link>
+          <Link to="/leaderboard">Leaderboard</Link>
+          <Link to="/api-docs">API</Link>
           <Link to="/license">License</Link>
           <Link to="/privacy">Privacy</Link>
           <Link to="/terms">Terms</Link>

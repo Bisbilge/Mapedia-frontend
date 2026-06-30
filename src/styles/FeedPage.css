@@ -1,0 +1,493 @@
+/* ═══════════════════════════════════════
+   FEED PAGE
+   ═══════════════════════════════════════ */
+
+.feed-main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.feed-header {
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.feed-header h1 {
+  font-family: 'Linux Libertine', serif;
+  font-size: 22px;
+  font-weight: normal;
+  color: var(--text);
+  margin: 0 0 2px;
+}
+
+.feed-subheader {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.feed-loading,
+.feed-empty-state {
+  color: var(--text-light);
+  font-size: 14px;
+  padding: 40px 0;
+  line-height: 1.9;
+}
+
+/* ── CARD ── */
+
+.feed-card {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feed-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.feed-card-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.feed-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--link);
+  text-decoration: none;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+}
+
+.feed-cat-tag:hover { text-decoration: underline; }
+
+.feed-card-time {
+  font-size: 11px;
+  color: var(--text-light);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.feed-card-name {
+  font-size: 18px;
+  font-family: 'Linux Libertine', serif;
+  color: var(--link);
+  text-decoration: none;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.feed-card-name:hover { text-decoration: underline; }
+
+.feed-card-location {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.feed-card-desc {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Stars ── */
+
+.feed-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.feed-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--border);
+  padding: 0;
+  line-height: 1;
+  transition: color 0.1s;
+}
+
+.feed-star:disabled { cursor: default; }
+
+.feed-star-on { color: #e6a817; }
+
+.feed-star:not(:disabled):hover { color: #e6a817; }
+
+/* ── Field values ── */
+
+.feed-card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.feed-card-field {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.feed-card-field:last-child { border-bottom: none; }
+
+.feed-field-label {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background: var(--nav-bg);
+  color: var(--text-light);
+  border-right: 1px solid var(--border);
+}
+
+.feed-field-value {
+  padding: 5px 10px;
+  color: var(--text);
+  flex: 1;
+}
+
+.feed-field-yes { color: #16a34a; font-weight: 600; }
+.feed-field-no  { color: #dc2626; }
+
+/* ── Rating summary on card ── */
+
+.feed-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-card-rating .feed-star { font-size: 13px; }
+
+.feed-card-rating-text {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* ── Preview comments ── */
+
+.feed-preview-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.feed-preview-comment {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.feed-preview-comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feed-preview-comment-user {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--link);
+  text-decoration: none;
+}
+
+.feed-preview-comment-user:hover { text-decoration: underline; }
+
+.feed-preview-comment-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Action buttons ── */
+
+.feed-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+
+.feed-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--text-light);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.feed-action-btn:hover {
+  border-color: var(--link);
+  color: var(--link);
+  text-decoration: none;
+}
+
+.feed-action-link { color: var(--text-light); }
+
+.feed-action-count {
+  background: var(--border);
+  color: var(--text-light);
+  font-size: 10px;
+  padding: 1px 5px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* ── Load more ── */
+
+.feed-more {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.feed-more-btn {
+  padding: 8px 28px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--link);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.feed-more-btn:hover { border-color: var(--link); }
+.feed-more-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════
+   POPUP
+   ═══════════════════════════════════════ */
+
+.feed-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.feed-popup {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 440px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-popup-reviews {
+  max-width: 480px;
+}
+
+.feed-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  font-family: 'Linux Libertine', serif;
+  font-size: 15px;
+  font-weight: normal;
+  flex-shrink: 0;
+}
+
+.feed-popup-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-light);
+  padding: 2px 6px;
+}
+
+.feed-popup-close:hover { color: var(--text); }
+
+.feed-popup-venue {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.feed-popup-venue a {
+  font-size: 15px;
+  color: var(--link);
+  font-weight: 500;
+}
+
+.feed-popup-loc {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Comment form */
+
+.feed-popup-form {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feed-popup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feed-popup-label {
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.feed-popup-optional {
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.feed-popup-textarea {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+}
+
+.feed-popup-textarea:focus { border-color: var(--link); }
+
+.feed-popup-charcount {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: right;
+}
+
+.feed-popup-submit {
+  padding: 9px;
+  background: var(--link);
+  color: white;
+  border: none;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.feed-popup-submit:hover { opacity: 0.9; }
+.feed-popup-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Reviews popup content */
+
+.feed-popup-loading,
+.feed-popup-empty {
+  padding: 24px 16px;
+  color: var(--text-light);
+  font-size: 13px;
+  text-align: center;
+}
+
+.feed-reviews-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  flex-shrink: 0;
+}
+
+.feed-reviews-avg {
+  font-size: 22px;
+  font-family: 'Linux Libertine', serif;
+  color: var(--text);
+}
+
+.feed-reviews-total {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.feed-reviews-list {
+  padding: 0 16px;
+}
+
+.feed-review-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.feed-review-item:last-child { border-bottom: none; }
+
+.feed-review-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.feed-review-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--link);
+}
+
+.feed-review-meta .feed-star { font-size: 13px; }
+
+.feed-review-date {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-left: auto;
+}
+
+.feed-review-comment {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── responsive ── */
+
+@media (max-width: 480px) {
+  .feed-card { padding: 12px; }
+  .feed-card-name { font-size: 16px; }
+  .feed-popup { max-height: 90vh; }
+}

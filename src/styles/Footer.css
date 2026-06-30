@@ -46,3 +46,20 @@
   font-size: 12px;
   opacity: 0.6;
 }
+@media (max-width: 480px) {
+  .site-footer {
+    padding: 24px 16px;
+    padding-bottom: calc(24px + var(--safe-area-bottom));
+    margin-top: 40px;
+  }
+
+  .footer-links {
+    gap: 10px 16px;
+  }
+
+  .footer-links a {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+}

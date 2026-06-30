@@ -1,12 +1,12 @@
 // AboutPage.jsx
 import { Helmet } from 'react-helmet-async'
-import Navbar from '../components/Navbar'
-import '../styles/HomePage.css'
 import { Link } from 'react-router-dom'
+import Navbar from '../components/Navbar'
+import '../styles/wiki.css'
 
 function AboutPage() {
   return (
-    <div className="home-container">
+    <div>
       <Helmet>
         <title>About Mapedia | The Free Encyclopedia of Places</title>
         <meta name="description" content="Learn about Mapedia — a community-maintained, open database of real-world venues. Free data, forever. Licensed under CC BY-SA 4.0." />
@@ -19,85 +19,173 @@ function AboutPage() {
         <meta name="twitter:title" content="About Mapedia" />
         <meta name="twitter:description" content="Community-maintained open database of real-world venues. CC BY-SA 4.0." />
       </Helmet>
+
       <Navbar />
-      <main className="home-main" style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px' }}>
-        <h1>About Mapedia</h1>
 
-        <h2>The Problem</h2>
-        <p>
-          Most mapping services treat location data as a proprietary asset. Coordinates, place details,
-          and practical information are locked behind commercial interests, shaped by algorithms, and
-          made available only on someone else's terms. The data exists — but it isn't free.
-        </p>
-        <p>
-          Mapedia was built in response to this. Not to compete with existing maps, but to occupy
-          a different space entirely: the granular, practical knowledge about places that commercial
-          platforms have no incentive to collect or share.
-        </p>
+      <main className="wiki-page">
 
-        <h2>What Mapedia Documents</h2>
-        <p>
-          A coordinate tells you where a place is. Mapedia tries to answer what it's actually like
-          to be there — the entry procedures, the available power outlets, the real accessibility
-          situation, the connection quality, the practical micro-details that determine whether a
-          place works for you before you arrive.
-        </p>
-        <p>
-          This is not data that scales well through automation. It requires people who have been
-          to these places, who noticed, and who chose to share what they found.
-        </p>
+        <div className="wiki-title-bar">
+          <h1>About Mapedia</h1>
+          <p>The free, community-maintained encyclopedia of places</p>
+        </div>
 
-        <h2>How It Works</h2>
-        <p>
-          Mapedia is built around community-owned categories. Any user can propose a new category
-          of places, define what data should be collected for it, and take responsibility for
-          moderating contributions. There is no central editorial authority deciding what matters.
-          The platform provides the structure; the community provides the knowledge.
-        </p>
-        <p>
-          Contributions go through a moderation layer before they are published — not to gatekeep,
-          but to maintain the accuracy that makes the data useful. Trusted contributors can bypass
-          this step once they've established a track record.
-        </p>
+        <div className="wiki-portal">
 
-        <h2>Open Data</h2>
-        <p>
-          Every piece of data on Mapedia is published under the{' '}
-          <strong>Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)</strong>{' '}
-          license. This is not a courtesy — it is a structural commitment.
-        </p>
-        <p>
-          It means the data belongs to no one and to everyone. It can be downloaded, reused,
-          built upon, and redistributed freely, as long as the same freedom is preserved downstream.
-          No data on Mapedia can be taken and made proprietary. The license enforces this
-          automatically.
-        </p>
-        <p>
-          Mapedia does not sell data. It does not monetize access. The infrastructure exists
-          to keep the data available and the contribution process open.
-        </p>
+          {/* ── LEFT: Article ── */}
+          <div className="wiki-col-main">
 
-        <h2>Infrastructure</h2>
-        <p>
-          Mapedia runs on a single server hosted by Hetzner Online GmbH in Germany, within the
-          European Union. It is maintained by one person. There is no company, no investors,
-          and no roadmap driven by growth metrics. The goal is a reliable, honest, and permanent
-          public record of places — nothing more.
-        </p>
+            <div className="wiki-box">
+              <div className="wiki-section">
+                <h2>The Problem</h2>
+                <p>
+                  Most mapping services treat location data as a proprietary asset. Coordinates, place details,
+                  and practical information are locked behind commercial interests, shaped by algorithms, and
+                  made available only on someone else's terms. The data exists — but it isn't free.
+                </p>
+                <p>
+                  Mapedia was built in response to this. Not to compete with existing maps, but to occupy
+                  a different space entirely: the granular, practical knowledge about places that commercial
+                  platforms have no incentive to collect or share.
+                </p>
+              </div>
 
-        <h2>Participate</h2>
-        <p>
-          The platform is only as useful as its data. If you know a place well enough to document
-          it accurately, that knowledge has a home here.
-        </p>
-        <p>
-          <Link to="/register">Create an account</Link> to start contributing, or browse existing
-          categories to see what's already been mapped.
-        </p>
+              <div className="wiki-section">
+                <h2>What Mapedia Documents</h2>
+                <p>
+                  A coordinate tells you where a place is. Mapedia tries to answer what it's actually like
+                  to be there — the entry procedures, the available power outlets, the real accessibility
+                  situation, the connection quality, the practical micro-details that determine whether a
+                  place works for you before you arrive.
+                </p>
+                <p>
+                  This is not data that scales well through automation. It requires people who have been
+                  to these places, who noticed, and who chose to share what they found.
+                </p>
+              </div>
 
-        <p style={{ marginTop: 48, fontSize: 13, color: 'var(--text-light)', borderTop: '1px solid var(--border)', paddingTop: 24 }}>
-          Questions or feedback: <a href="mailto:info@mapedia.org">info@mapedia.org</a>
-        </p>
+              <div className="wiki-section">
+                <h2>How It Works</h2>
+                <p>
+                  Mapedia is built around community-owned <strong>categories</strong>. Any user can create
+                  a new category of places, define what data should be collected for it, and take
+                  responsibility for moderating contributions. Each category is shaped entirely by its
+                  creator — because no one understands what a community needs better than the people in it.
+                  There is no central authority deciding what is worth tracking.
+                </p>
+                <p>
+                  A volunteer mapping aid stations during a disaster, a community tracking affordable food
+                  spots, an accessibility advocate documenting wheelchair access — each can build their own
+                  category, define their own fields, and start collecting data in minutes.
+                </p>
+                <p>
+                  Contributions go through a moderation layer before they are published — not to gatekeep,
+                  but to maintain the accuracy that makes the data useful. Trusted contributors can bypass
+                  this step once they've established a track record.
+                </p>
+              </div>
+
+              <div className="wiki-section">
+                <h2>Open Data</h2>
+                <p>
+                  Every piece of data on Mapedia is published under the{' '}
+                  <strong>Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)</strong>{' '}
+                  license. This is not a courtesy — it is a structural commitment.
+                </p>
+                <p>
+                  It means the data belongs to no one and to everyone. It can be downloaded, reused,
+                  built upon, and redistributed freely, as long as the same freedom is preserved downstream.
+                  No data on Mapedia can be taken and made proprietary.
+                </p>
+              </div>
+
+              <div className="wiki-section">
+                <h2>Infrastructure</h2>
+                <p>
+                  Mapedia runs on a single server hosted by Hetzner Online GmbH in Germany, within the
+                  European Union. It is maintained by one person. There is no company, no investors,
+                  and no roadmap driven by growth metrics. The goal is a reliable, honest, and permanent
+                  public record of places — nothing more.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ── RIGHT: Sidebar ── */}
+          <aside className="wiki-col-side">
+
+            {/* Infobox */}
+            <div className="wiki-infobox">
+              <div className="wiki-infobox-title">Mapedia</div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Type</td>
+                    <td>Open geographic database</td>
+                  </tr>
+                  <tr>
+                    <td>License</td>
+                    <td>
+                      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">
+                        CC BY-SA 4.0
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Hosting</td>
+                    <td>Hetzner, Germany (EU)</td>
+                  </tr>
+                  <tr>
+                    <td>Backend</td>
+                    <td>Django REST Framework</td>
+                  </tr>
+                  <tr>
+                    <td>Frontend</td>
+                    <td>React + Vite</td>
+                  </tr>
+                  <tr>
+                    <td>Contact</td>
+                    <td><a href="mailto:info@mapedia.org">info@mapedia.org</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Participate */}
+            <div className="wiki-box">
+              <div className="wiki-box-header wiki-box-header-accent">
+                <h2>Participate</h2>
+              </div>
+              <div className="wiki-box-body">
+                <p>
+                  The platform is only as useful as its data. If you know a place well enough to document
+                  it accurately, that knowledge has a home here.
+                </p>
+              </div>
+              <div className="wiki-side-actions">
+                <Link to="/contribute" className="wiki-btn-primary">Add a Place</Link>
+                <Link to="/register" className="wiki-btn-secondary">Create Account</Link>
+                <Link to="/categories" className="wiki-btn-secondary">Browse Categories</Link>
+              </div>
+            </div>
+
+            {/* See also */}
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>See Also</h2>
+              </div>
+              <div className="wiki-box-body">
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <li><Link to="/license">Open Data License</Link></li>
+                  <li><Link to="/guidelines">Community Guidelines</Link></li>
+                  <li><Link to="/privacy">Privacy Policy</Link></li>
+                  <li><Link to="/terms">Terms of Service</Link></li>
+                </ul>
+              </div>
+            </div>
+
+          </aside>
+        </div>
       </main>
     </div>
   )

@@ -108,6 +108,14 @@ Disallow: /
 User-agent: *
 Allow: /
 Disallow: /api/v1/admin/
+Disallow: /login
+Disallow: /register
+Disallow: /verify-email
+Disallow: /moderation
+Disallow: /contribute
+Disallow: /create-category
+Disallow: /profile
+Disallow: /search
 Crawl-delay: 5
 
 # ─────────────────────────────────────────

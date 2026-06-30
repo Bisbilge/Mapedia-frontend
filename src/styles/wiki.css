@@ -1,0 +1,323 @@
+/* wiki.css — Shared wiki-style layout components
+   Used across AboutPage, CategoryDetailPage, OpenDataLicensePage, etc. */
+
+/* ── Page wrapper ── */
+.wiki-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+/* ── Page title bar ── */
+.wiki-title-bar {
+  padding: 28px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.wiki-title-bar h1 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 30px;
+  font-weight: normal;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.wiki-title-bar p {
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.wiki-breadcrumb {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wiki-breadcrumb a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.wiki-breadcrumb a:hover { text-decoration: underline; }
+
+.wiki-breadcrumb-sep { color: var(--border); }
+
+/* ── Two-column portal layout ── */
+.wiki-portal {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.wiki-col-main { min-width: 0; }
+.wiki-col-side { }
+
+/* ── Box ── */
+.wiki-box {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  margin-bottom: 20px;
+}
+
+.wiki-box-header {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wiki-box-header h2,
+.wiki-box-header h3 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 16px;
+  font-weight: normal;
+  color: var(--text);
+  margin: 0;
+}
+
+.wiki-box-header-accent {
+  background: var(--accent);
+}
+
+.wiki-box-body {
+  padding: 14px;
+}
+
+.wiki-box-body p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+
+.wiki-box-body p:last-child { margin-bottom: 0; }
+
+.wiki-box-body ul,
+.wiki-box-body ol {
+  padding-left: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wiki-box-body li {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.wiki-box-footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+/* ── Infobox (right sidebar table) ── */
+.wiki-infobox {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.wiki-infobox-title {
+  padding: 8px 12px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-light);
+}
+
+.wiki-infobox table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wiki-infobox tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.wiki-infobox tr:last-child {
+  border-bottom: none;
+}
+
+.wiki-infobox td {
+  padding: 7px 12px;
+  vertical-align: top;
+}
+
+.wiki-infobox td:first-child {
+  width: 38%;
+  color: var(--text-light);
+  background: var(--nav-bg);
+  font-size: 12px;
+}
+
+.wiki-infobox a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.wiki-infobox a:hover { text-decoration: underline; }
+
+/* ── Section within a box (has its own heading) ── */
+.wiki-section {
+  border-bottom: 1px solid var(--border);
+  padding: 14px;
+}
+
+.wiki-section:last-child {
+  border-bottom: none;
+}
+
+.wiki-section h2,
+.wiki-section h3 {
+  font-family: 'Linux Libertine', Georgia, serif;
+  font-size: 18px;
+  font-weight: normal;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.wiki-section h3 { font-size: 16px; }
+
+/* ── Blockquote ── */
+.wiki-blockquote {
+  border-left: 3px solid var(--border);
+  padding: 8px 16px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text-light);
+  background: var(--nav-bg);
+}
+
+/* ── Action buttons in sidebar ── */
+.wiki-side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+}
+
+.wiki-btn-primary {
+  display: block;
+  padding: 7px 14px;
+  background: var(--link);
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid var(--link);
+}
+
+.wiki-btn-primary:hover {
+  opacity: 0.88;
+  text-decoration: none;
+  color: white;
+}
+
+.wiki-btn-secondary {
+  display: block;
+  padding: 7px 14px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.wiki-btn-secondary:hover {
+  border-color: var(--link);
+  color: var(--link);
+  text-decoration: none;
+}
+
+/* ── Stats row ── */
+.wiki-stats {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.wiki-stat {
+  flex: 1;
+  padding: 14px 12px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+
+.wiki-stat:last-child { border-right: none; }
+
+.wiki-stat-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--link);
+  line-height: 1.1;
+}
+
+.wiki-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 3px;
+}
+
+/* ── Footer note ── */
+.wiki-footer-note {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .wiki-portal {
+    grid-template-columns: 1fr;
+  }
+
+  .wiki-title-bar h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wiki-page {
+    padding: 0 14px 48px;
+  }
+
+  .wiki-stats {
+    flex-wrap: wrap;
+  }
+
+  .wiki-stat {
+    flex: 1 1 50%;
+  }
+
+  .wiki-stat:nth-child(odd) {
+    border-right: 1px solid var(--border);
+  }
+
+  .wiki-stat:not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)) {
+    border-bottom: 1px solid var(--border);
+  }
+}

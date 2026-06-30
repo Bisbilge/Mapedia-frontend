@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
+import '../styles/wiki.css'
 import '../styles/ModerationPage.css'
 
 const FIELD_TYPES = [
@@ -71,10 +72,9 @@ function FieldManager({ categorySlug, token }) {
       help_text: field.help_text || '',
       order: field.order,
     })
-    // Mevcut choices'ları yükle
     if (CHOICE_FIELD_TYPES.includes(field.field_type) && field.choices) {
-      setChoices(field.choices.length > 0 
-        ? field.choices.map(c => ({ ...c })) 
+      setChoices(field.choices.length > 0
+        ? field.choices.map(c => ({ ...c }))
         : [{ ...EMPTY_CHOICE }]
       )
     } else {
@@ -95,8 +95,6 @@ function FieldManager({ categorySlug, token }) {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-    
-    // Field type değiştiğinde choices'ı başlat
     if (name === 'field_type') {
       if (CHOICE_FIELD_TYPES.includes(value)) {
         setChoices([{ ...EMPTY_CHOICE }])
@@ -106,7 +104,6 @@ function FieldManager({ categorySlug, token }) {
     }
   }
 
-  // Choice handlers
   const handleChoiceChange = (index, key, value) => {
     setChoices(prev => prev.map((c, i) => i === index ? { ...c, [key]: value } : c))
   }
@@ -135,14 +132,12 @@ function FieldManager({ categorySlug, token }) {
       return
     }
 
-    // Choice validation
     if (CHOICE_FIELD_TYPES.includes(form.field_type)) {
       const validChoices = choices.filter(c => c.value.trim() && c.label.trim())
       if (validChoices.length < 2) {
         setError('At least 2 options with value and label are required.')
         return
       }
-      // Duplicate value check
       const values = validChoices.map(c => c.value.trim().toLowerCase())
       if (new Set(values).size !== values.length) {
         setError('Option values must be unique.')
@@ -180,7 +175,7 @@ function FieldManager({ categorySlug, token }) {
   }
 
   const handleDelete = (field) => {
-    if (!window.confirm(`"${field.label}" alanını silmek istediğinize emin misiniz?`)) return
+    if (!window.confirm(`Delete field "${field.label}"? This cannot be undone.`)) return
     api.delete(`/categories/${categorySlug}/fields/${field.id}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => loadFields())
@@ -236,7 +231,6 @@ function FieldManager({ categorySlug, token }) {
         </table>
       )}
 
-      {/* MODAL */}
       {showForm && (
         <div className="field-modal-overlay" onClick={closeForm}>
           <div className={`field-modal ${isChoiceField(form.field_type) ? 'field-modal-large' : ''}`} onClick={e => e.stopPropagation()}>
@@ -250,34 +244,18 @@ function FieldManager({ categorySlug, token }) {
             <div className="field-form-grid">
               <div className="field-form-group">
                 <label>Field Name <span className="field-required">*</span></label>
-                <input 
-                  name="name" 
-                  value={form.name} 
-                  onChange={handleChange}
-                  placeholder="e.g. wifi_speed" 
-                  disabled={!!editingField} 
-                />
+                <input name="name" value={form.name} onChange={handleChange} placeholder="e.g. wifi_speed" disabled={!!editingField} />
                 {editingField && <small>Name cannot be changed after creation.</small>}
               </div>
 
               <div className="field-form-group">
                 <label>Display Label <span className="field-required">*</span></label>
-                <input 
-                  name="label" 
-                  value={form.label} 
-                  onChange={handleChange}
-                  placeholder="e.g. WiFi Speed (Mbps)" 
-                />
+                <input name="label" value={form.label} onChange={handleChange} placeholder="e.g. WiFi Speed (Mbps)" />
               </div>
 
               <div className="field-form-group">
                 <label>Field Type</label>
-                <select 
-                  name="field_type" 
-                  value={form.field_type} 
-                  onChange={handleChange}
-                  disabled={!!editingField}
-                >
+                <select name="field_type" value={form.field_type} onChange={handleChange} disabled={!!editingField}>
                   {FIELD_TYPES.map(t => (
                     <option key={t.value} value={t.value}>{t.label}</option>
                   ))}
@@ -287,118 +265,49 @@ function FieldManager({ categorySlug, token }) {
 
               <div className="field-form-group">
                 <label>Order</label>
-                <input 
-                  name="order" 
-                  type="number" 
-                  value={form.order}
-                  onChange={handleChange} 
-                  min="0" 
-                />
+                <input name="order" type="number" value={form.order} onChange={handleChange} min="0" />
               </div>
 
               <div className="field-form-group field-form-full">
                 <label>Help Text</label>
-                <input 
-                  name="help_text" 
-                  value={form.help_text} 
-                  onChange={handleChange}
-                  placeholder="Hint shown to users filling in this field" 
-                />
+                <input name="help_text" value={form.help_text} onChange={handleChange} placeholder="Hint shown to users filling in this field" />
               </div>
 
               <div className="field-form-group field-form-checkboxes">
                 <label>
-                  <input 
-                    type="checkbox" 
-                    name="is_required" 
-                    checked={form.is_required}
-                    onChange={handleChange} 
-                  />
+                  <input type="checkbox" name="is_required" checked={form.is_required} onChange={handleChange} />
                   Required
                 </label>
                 <label>
-                  <input 
-                    type="checkbox" 
-                    name="is_public" 
-                    checked={form.is_public}
-                    onChange={handleChange} 
-                  />
+                  <input type="checkbox" name="is_public" checked={form.is_public} onChange={handleChange} />
                   Public
                 </label>
               </div>
             </div>
 
-            {/* CHOICES SECTION */}
             {isChoiceField(form.field_type) && (
               <div className="field-choices-section">
                 <div className="field-choices-header">
-                  <h4>
-                    {form.field_type === 'choice' ? '📋 Options (Select One)' : '☑️ Options (Select Multiple)'}
-                  </h4>
-                  <button type="button" className="field-btn-add-choice" onClick={addChoice}>
-                    + Add Option
-                  </button>
+                  <h4>{form.field_type === 'choice' ? '📋 Options (Select One)' : '☑️ Options (Select Multiple)'}</h4>
+                  <button type="button" className="field-btn-add-choice" onClick={addChoice}>+ Add Option</button>
                 </div>
-
                 <p className="field-choices-hint">
-                  {form.field_type === 'choice' 
-                    ? 'Users will select ONE option from this list.'
-                    : 'Users can select MULTIPLE options from this list.'}
+                  {form.field_type === 'choice' ? 'Users will select ONE option from this list.' : 'Users can select MULTIPLE options from this list.'}
                 </p>
-
                 <div className="field-choices-list">
                   {choices.map((choice, index) => (
                     <div key={index} className="field-choice-row">
                       <div className="field-choice-order">
-                        <button 
-                          type="button"
-                          className="field-choice-move"
-                          onClick={() => moveChoice(index, -1)}
-                          disabled={index === 0}
-                        >↑</button>
-                        <button 
-                          type="button"
-                          className="field-choice-move"
-                          onClick={() => moveChoice(index, 1)}
-                          disabled={index === choices.length - 1}
-                        >↓</button>
+                        <button type="button" className="field-choice-move" onClick={() => moveChoice(index, -1)} disabled={index === 0}>↑</button>
+                        <button type="button" className="field-choice-move" onClick={() => moveChoice(index, 1)} disabled={index === choices.length - 1}>↓</button>
                       </div>
-
-                      <input
-                        type="text"
-                        className="field-choice-value"
-                        placeholder="value"
-                        value={choice.value}
-                        onChange={(e) => handleChoiceChange(index, 'value', e.target.value)}
-                        disabled={editingField && choice.id}
-                      />
-
-                      <input
-                        type="text"
-                        className="field-choice-label"
-                        placeholder="Label"
-                        value={choice.label}
-                        onChange={(e) => handleChoiceChange(index, 'label', e.target.value)}
-                      />
-
-                      <input
-                        type="text"
-                        className="field-choice-icon"
-                        placeholder="icon"
-                        value={choice.icon || ''}
-                        onChange={(e) => handleChoiceChange(index, 'icon', e.target.value)}
-                      />
-
-                      <button
-                        type="button"
-                        className="field-choice-remove"
-                        onClick={() => removeChoice(index)}
-                        disabled={choices.length <= 1}
-                      >✕</button>
+                      <input type="text" className="field-choice-value" placeholder="value" value={choice.value} onChange={(e) => handleChoiceChange(index, 'value', e.target.value)} disabled={editingField && choice.id} />
+                      <input type="text" className="field-choice-label" placeholder="Label" value={choice.label} onChange={(e) => handleChoiceChange(index, 'label', e.target.value)} />
+                      <input type="text" className="field-choice-icon" placeholder="icon" value={choice.icon || ''} onChange={(e) => handleChoiceChange(index, 'icon', e.target.value)} />
+                      <button type="button" className="field-choice-remove" onClick={() => removeChoice(index)} disabled={choices.length <= 1}>✕</button>
                     </div>
                   ))}
                 </div>
-
                 <p className="field-choices-note">
                   <strong>value:</strong> internal key (no spaces) &nbsp;|&nbsp;
                   <strong>Label:</strong> shown to users &nbsp;|&nbsp;
@@ -429,13 +338,9 @@ function VenueManager({ categorySlug, token }) {
   const [totalCount, setTotalCount] = useState(0)
   const PAGE_SIZE = 20
 
-  useEffect(() => {
-    setPage(1)
-  }, [categorySlug, search])
+  useEffect(() => { setPage(1) }, [categorySlug, search])
 
-  useEffect(() => {
-    loadVenues()
-  }, [categorySlug, page, search])
+  useEffect(() => { loadVenues() }, [categorySlug, page, search])
 
   const loadVenues = () => {
     setLoading(true)
@@ -463,7 +368,7 @@ function VenueManager({ categorySlug, token }) {
   }
 
   const handleDelete = (venue) => {
-    if (!window.confirm(`"${venue.name}" venue'sunu silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return
+    if (!window.confirm(`Delete venue "${venue.name}"? This cannot be undone.`)) return
     api.delete(`/venues/${venue.slug}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -471,10 +376,7 @@ function VenueManager({ categorySlug, token }) {
       .catch(err => console.error('Delete failed:', err))
   }
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value)
-    setPage(1)
-  }
+  const handleSearch = (e) => { setSearch(e.target.value); setPage(1) }
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
@@ -483,24 +385,11 @@ function VenueManager({ categorySlug, token }) {
     const range = []
     const left = Math.max(1, page - delta)
     const right = Math.min(totalPages, page + delta)
-
-    for (let i = left; i <= right; i++) {
-      range.push(i)
-    }
-
-    if (left > 2) {
-      range.unshift('...')
-    }
-    if (left > 1) {
-      range.unshift(1)
-    }
-    if (right < totalPages - 1) {
-      range.push('...')
-    }
-    if (right < totalPages) {
-      range.push(totalPages)
-    }
-
+    for (let i = left; i <= right; i++) { range.push(i) }
+    if (left > 2) range.unshift('...')
+    if (left > 1) range.unshift(1)
+    if (right < totalPages - 1) range.push('...')
+    if (right < totalPages) range.push(totalPages)
     return range
   }
 
@@ -509,17 +398,9 @@ function VenueManager({ categorySlug, token }) {
       <div className="field-manager-header">
         <h3>
           Venues{' '}
-          <span className="venue-count">
-            ({totalCount} total{search ? ' · filtered' : ''})
-          </span>
+          <span className="venue-count">({totalCount} total{search ? ' · filtered' : ''})</span>
         </h3>
-        <input
-          className="venue-search"
-          type="text"
-          placeholder="Search venues..."
-          value={search}
-          onChange={handleSearch}
-        />
+        <input className="venue-search" type="text" placeholder="Search venues..." value={search} onChange={handleSearch} />
       </div>
 
       {loading ? (
@@ -541,67 +422,33 @@ function VenueManager({ categorySlug, token }) {
               {venues.map(v => (
                 <tr key={v.id}>
                   <td>
-                    <Link to={`/venue/${v.slug}`} className="venue-manager-link">
-                      {v.name}
-                    </Link>
+                    <Link to={`/venue/${v.slug.split('/').pop()}`} className="venue-manager-link">{v.name}</Link>
                   </td>
                   <td>{v.city || '—'}</td>
                   <td>{v.country || '—'}</td>
                   <td className="field-actions">
-                    <Link
-                      to={`/venue/${categorySlug}/${v.slug}/edit`}
-                      className="field-btn-edit"
-                      style={{ textDecoration: 'none', display: 'inline-block' }}
-                    >
-                      Edit
-                    </Link>
-                    <button className="field-btn-delete" onClick={() => handleDelete(v)}>
-                      Delete
-                    </button>
+                    <Link to={`/venue/${v.slug.split('/').pop()}/edit`} className="field-btn-edit" style={{ textDecoration: 'none', display: 'inline-block' }}>Edit</Link>
+                    <button className="field-btn-delete" onClick={() => handleDelete(v)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* PAGINATION */}
           {totalPages > 1 && (
             <div className="venue-pagination">
-              <button
-                className="venue-page-btn"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                ← Prev
-              </button>
-
+              <button className="venue-page-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>← Prev</button>
               <div className="venue-page-numbers">
                 {getPageNumbers().map((num, i) =>
                   num === '...' ? (
                     <span key={`dots-${i}`} className="venue-page-dots">…</span>
                   ) : (
-                    <button
-                      key={num}
-                      className={`venue-page-btn ${page === num ? 'venue-page-btn-active' : ''}`}
-                      onClick={() => setPage(num)}
-                    >
-                      {num}
-                    </button>
+                    <button key={num} className={`venue-page-btn ${page === num ? 'venue-page-btn-active' : ''}`} onClick={() => setPage(num)}>{num}</button>
                   )
                 )}
               </div>
-
-              <button
-                className="venue-page-btn"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                Next →
-              </button>
-
-              <span className="venue-page-info">
-                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}
-              </span>
+              <button className="venue-page-btn" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>Next →</button>
+              <span className="venue-page-info">{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}</span>
             </div>
           )}
         </>
@@ -675,13 +522,7 @@ function CategorySettings({ categorySlug, token }) {
         </div>
         <div className="field-form-group cat-settings-full">
           <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={4}
-            className="mod-reject-note"
-          />
+          <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="mod-reject-note" />
         </div>
       </div>
       <div className="field-modal-actions" style={{ justifyContent: 'flex-start', marginTop: 16 }}>
@@ -689,6 +530,60 @@ function CategorySettings({ categorySlug, token }) {
           {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+    </div>
+  )
+}
+
+// ─── HISTORY TAB ─────────────────────────────────────────────
+function HistoryTab({ categorySlug, token }) {
+  const [history, setHistory] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setLoading(true)
+    api.get(`/contributions/?category=${categorySlug}&status=approved,rejected`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => setHistory(res.data.results || res.data || []))
+      .catch(() => setError('History not available.'))
+      .finally(() => setLoading(false))
+  }, [categorySlug])
+
+  if (loading) return <div className="mod-empty-state"><p>Loading history…</p></div>
+  if (error) return <div className="mod-empty-state"><p>{error}</p></div>
+  if (history.length === 0) return <div className="mod-empty-state"><p>No moderation history yet.</p></div>
+
+  return (
+    <div className="mod-history">
+      <table className="mod-history-table">
+        <thead>
+          <tr>
+            <th>Venue</th>
+            <th>Type</th>
+            <th>Contributor</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {history.map(c => (
+            <tr key={c.id}>
+              <td>{c.payload?.name || '—'}</td>
+              <td><span className="mod-item-type" style={{ fontSize: 11 }}>{c.contribution_type?.replace('_', ' ')}</span></td>
+              <td style={{ fontSize: 12 }}>{c.contributor}</td>
+              <td>
+                <span className={`mod-history-status mod-history-${c.status}`}>
+                  {c.status}
+                </span>
+              </td>
+              <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {new Date(c.updated_at || c.created_at).toLocaleDateString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -706,6 +601,9 @@ function ModerationPage() {
   const [rejectNote, setRejectNote] = useState('')
   const [processing, setProcessing] = useState(false)
   const [activeTab, setActiveTab] = useState('contributions')
+  const [checkedIds, setCheckedIds] = useState(new Set())
+  const [bulkRejectNote, setBulkRejectNote] = useState('')
+  const [bulkProcessing, setBulkProcessing] = useState(false)
 
   useEffect(() => {
     if (!token) { navigate('/login'); return }
@@ -736,7 +634,7 @@ function ModerationPage() {
   }
 
   const handleDeleteCategory = (cat) => {
-    if (!window.confirm(`"${cat.name}" kategorisini silmek istediğinize emin misiniz? Tüm venue ve field'lar da silinecek. Bu işlem geri alınamaz.`)) return
+    if (!window.confirm(`Delete category "${cat.name}"? All venues and fields will also be deleted. This cannot be undone.`)) return
     api.delete(`/categories/${cat.slug}/delete/`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -770,17 +668,64 @@ function ModerationPage() {
       .finally(() => setProcessing(false))
   }
 
-  // Field value'ları göster (choice/multi_choice dahil)
+  const toggleCheck = (id) => {
+    setCheckedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const toggleAll = () => {
+    if (checkedIds.size === contributions.length) {
+      setCheckedIds(new Set())
+    } else {
+      setCheckedIds(new Set(contributions.map(c => c.id)))
+    }
+  }
+
+  const handleBulkApprove = async () => {
+    if (checkedIds.size === 0) return
+    if (!window.confirm(`Approve ${checkedIds.size} contribution(s)?`)) return
+    setBulkProcessing(true)
+    try {
+      await Promise.all([...checkedIds].map(id =>
+        api.post(`/contributions/${id}/approve/`, {}, { headers: { Authorization: `Bearer ${token}` } })
+      ))
+      setContributions(prev => prev.filter(c => !checkedIds.has(c.id)))
+      if (selected && checkedIds.has(selected.id)) setSelected(null)
+      setCheckedIds(new Set())
+    } catch (err) {
+      console.error('Bulk approve error:', err)
+    } finally {
+      setBulkProcessing(false)
+    }
+  }
+
+  const handleBulkReject = async () => {
+    if (checkedIds.size === 0) return
+    if (!window.confirm(`Reject ${checkedIds.size} contribution(s)?`)) return
+    setBulkProcessing(true)
+    try {
+      await Promise.all([...checkedIds].map(id =>
+        api.post(`/contributions/${id}/reject/`, { note: bulkRejectNote }, { headers: { Authorization: `Bearer ${token}` } })
+      ))
+      setContributions(prev => prev.filter(c => !checkedIds.has(c.id)))
+      if (selected && checkedIds.has(selected.id)) setSelected(null)
+      setCheckedIds(new Set())
+      setBulkRejectNote('')
+    } catch (err) {
+      console.error('Bulk reject error:', err)
+    } finally {
+      setBulkProcessing(false)
+    }
+  }
+
   const renderFieldValue = (key, value) => {
-    // JSON array mi kontrol et (multi_choice)
     try {
       const parsed = JSON.parse(value)
-      if (Array.isArray(parsed)) {
-        return parsed.join(', ')
-      }
-    } catch {
-      // JSON değilse olduğu gibi döndür
-    }
+      if (Array.isArray(parsed)) { return parsed.join(', ') }
+    } catch { }
     return String(value)
   }
 
@@ -816,180 +761,257 @@ function ModerationPage() {
     return (<><Navbar /><div className="mod-loading">Loading...</div></>)
   }
 
-  // Kategori listesi
+  // Categories list view
   if (!categorySlug) {
     return (
       <div>
         <Navbar />
-        <main className="mod-categories-main">
-          <h1 className="mod-categories-title">Moderation Center</h1>
-          <p className="mod-categories-desc">Select a category to review pending contributions.</p>
-          {categories.length === 0 ? (
-            <p className="mod-empty">You don't have moderation permissions for any category.</p>
-          ) : (
-            <div className="mod-categories-grid">
-              {categories.map(cat => (
-                <div key={cat.id} className="mod-category-card">
-                  <Link to={`/moderation/${cat.slug}`} className="mod-category-link">
-                    <span className="mod-category-name">{cat.name}</span>
-                    <span className={`mod-category-count ${cat.pending_count > 0 ? 'mod-category-count-active' : ''}`}>
-                      {cat.pending_count} pending
-                    </span>
-                  </Link>
-                  <div className="mod-category-actions">
-                    {cat.is_owner && (
-                      <Link to={`/moderation/${cat.slug}/moderators`} className="mod-manage-mods">
-                        Manage Moderators
-                      </Link>
-                    )}
-                    {cat.is_owner && (
-                      <button
-                        className="mod-delete-category-btn"
-                        onClick={() => handleDeleteCategory(cat)}
-                      >
-                        Delete Category
-                      </button>
-                    )}
+        <main className="wiki-page" style={{ maxWidth: 1040 }}>
+
+          <div className="wiki-title-bar">
+            <nav className="wiki-breadcrumb">
+              <Link to="/">Mapedia</Link>
+              <span className="wiki-breadcrumb-sep">›</span>
+              <span>Moderation</span>
+            </nav>
+            <h1>Moderation Center</h1>
+            <p>Select a category to review pending contributions.</p>
+          </div>
+
+          <div className="wiki-portal">
+            <div className="wiki-col-main">
+              {categories.length === 0 ? (
+                <div className="wiki-box">
+                  <div className="wiki-box-body">
+                    <p className="mod-empty">You don't have moderation permissions for any category.</p>
                   </div>
                 </div>
-              ))}
+              ) : (
+                <div className="wiki-box">
+                  <div className="wiki-box-header">
+                    <h2>Your Categories</h2>
+                  </div>
+                  <div className="mod-categories-grid">
+                    {categories.map(cat => (
+                      <div key={cat.id} className="mod-category-card">
+                        <Link to={`/moderation/${cat.slug}`} className="mod-category-link">
+                          <span className="mod-category-name">{cat.name}</span>
+                          <span className={`mod-category-count ${cat.pending_count > 0 ? 'mod-category-count-active' : ''}`}>
+                            {cat.pending_count} pending
+                          </span>
+                        </Link>
+                        <div className="mod-category-actions">
+                          {cat.is_owner && (
+                            <Link to={`/moderation/${cat.slug}/moderators`} className="mod-manage-mods">
+                              Manage Moderators
+                            </Link>
+                          )}
+                          {cat.is_owner && (
+                            <button className="mod-delete-category-btn" onClick={() => handleDeleteCategory(cat)}>
+                              Delete Category
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+
+            <aside className="wiki-col-side">
+              <div className="wiki-box">
+                <div className="wiki-box-header wiki-box-header-accent">
+                  <h2>Actions</h2>
+                </div>
+                <div className="wiki-side-actions">
+                  <Link to="/create-category" className="wiki-btn-primary">+ Create Category</Link>
+                </div>
+              </div>
+
+              <div className="wiki-infobox">
+                <div className="wiki-infobox-title">Overview</div>
+                <table>
+                  <tbody>
+                    <tr><td>Categories</td><td>{categories.length}</td></tr>
+                    <tr><td>Total pending</td><td>{categories.reduce((sum, c) => sum + (c.pending_count || 0), 0)}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </aside>
+          </div>
         </main>
       </div>
     )
   }
 
-  // Kategori detay
+  // Category detail view
   return (
     <div>
       <Navbar />
-      <main className="mod-main">
-        <div className="mod-layout">
-          <aside className="mod-sidebar">
-            <div className="mod-back">
-              <Link to="/moderation">← Back to Categories</Link>
-            </div>
-            <h2>Pending Review</h2>
-            <p className="mod-count">
-              {contributions.length} contribution{contributions.length !== 1 ? 's' : ''}
-            </p>
-            {contributions.length === 0 ? (
-              <p className="mod-empty">No pending items.</p>
-            ) : (
-              <ul className="mod-list">
-                {contributions.map(c => (
-                  <li key={c.id}>
-                    <button
-                      className={`mod-list-item ${selected?.id === c.id ? 'mod-list-item-active' : ''}`}
-                      onClick={() => { setSelected(c); setActiveTab('contributions') }}
-                    >
-                      <span className="mod-item-type">{c.contribution_type.replace('_', ' ')}</span>
-                      <span className="mod-item-name">{c.payload.name || 'Unnamed Entry'}</span>
-                      <span className="mod-item-meta">
-                        by {c.contributor} · {new Date(c.created_at).toLocaleDateString()}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </aside>
+      <main className="wiki-page" style={{ maxWidth: 1200 }}>
 
-          <section className="mod-content">
-            <div className="mod-tabs">
-              <button
-                className={`mod-tab ${activeTab === 'contributions' ? 'mod-tab-active' : ''}`}
-                onClick={() => setActiveTab('contributions')}
-              >
-                Contributions
-                {contributions.length > 0 && (
-                  <span className="mod-tab-badge">{contributions.length}</span>
-                )}
-              </button>
-              <button
-                className={`mod-tab ${activeTab === 'venues' ? 'mod-tab-active' : ''}`}
-                onClick={() => setActiveTab('venues')}
-              >
-                Venues
-              </button>
-              <button
-                className={`mod-tab ${activeTab === 'fields' ? 'mod-tab-active' : ''}`}
-                onClick={() => setActiveTab('fields')}
-              >
-                Manage Fields
-              </button>
-              <button
-                className={`mod-tab ${activeTab === 'settings' ? 'mod-tab-active' : ''}`}
-                onClick={() => setActiveTab('settings')}
-              >
-                Category Settings
-              </button>
-            </div>
-
-            {activeTab === 'contributions' && (
-              !selected ? (
-                <div className="mod-empty-state">
-                  <p>Select a contribution to start reviewing</p>
-                </div>
-              ) : (
-                <div className="mod-detail">
-                  <div className="mod-detail-header">
-                    <h2>{selected.payload.name || 'Review Submission'}</h2>
-                    <span className="mod-badge">{selected.contribution_type.replace('_', ' ')}</span>
-                  </div>
-                  <p className="mod-contributor">
-                    Submitted by <strong>{selected.contributor}</strong> on {new Date(selected.created_at).toLocaleString()}
-                  </p>
-                  <div className="mod-section">
-                    <h3>Submitted Data</h3>
-                    {renderPayload(selected.payload)}
-                  </div>
-                  {selected.payload.latitude && selected.payload.longitude && (
-                    <div className="mod-section">
-                      <h3>Location</h3>
-                      <a
-                        href={`https://www.openstreetmap.org/?mlat=${selected.payload.latitude}&mlon=${selected.payload.longitude}&zoom=16`}
-                        target="_blank" rel="noreferrer" className="mod-osm-link"
-                      >
-                        View on OpenStreetMap
-                      </a>
-                    </div>
-                  )}
-                  <div className="mod-section">
-                    <h3>Rejection Note (optional)</h3>
-                    <textarea
-                      className="mod-reject-note"
-                      placeholder="Provide a reason if rejecting..."
-                      value={rejectNote}
-                      onChange={e => setRejectNote(e.target.value)}
-                    />
-                  </div>
-                  <div className="mod-actions">
-                    <button className="mod-btn-approve" onClick={() => handleApprove(selected.id)} disabled={processing}>
-                      {processing ? 'Saving...' : 'Approve'}
-                    </button>
-                    <button className="mod-btn-reject" onClick={() => handleReject(selected.id)} disabled={processing}>
-                      Reject
-                    </button>
-                  </div>
-                </div>
-              )
-            )}
-
-            {activeTab === 'venues' && (
-              <VenueManager categorySlug={categorySlug} token={token} />
-            )}
-
-            {activeTab === 'fields' && (
-              <FieldManager categorySlug={categorySlug} token={token} />
-            )}
-
-            {activeTab === 'settings' && (
-              <CategorySettings categorySlug={categorySlug} token={token} />
-            )}
-          </section>
+        <div className="wiki-title-bar">
+          <nav className="wiki-breadcrumb">
+            <Link to="/">Mapedia</Link>
+            <span className="wiki-breadcrumb-sep">›</span>
+            <Link to="/moderation">Moderation</Link>
+            <span className="wiki-breadcrumb-sep">›</span>
+            <span>{categorySlug}</span>
+          </nav>
+          <h1>Moderation: {categorySlug}</h1>
         </div>
+
+        <main className="mod-main">
+          <div className="mod-layout">
+            <aside className="mod-sidebar">
+              <div className="mod-back">
+                <Link to="/moderation">← Back to Categories</Link>
+              </div>
+              <h2>Pending Review</h2>
+              <p className="mod-count">
+                {contributions.length} contribution{contributions.length !== 1 ? 's' : ''}
+              </p>
+              {contributions.length === 0 ? (
+                <p className="mod-empty">No pending items.</p>
+              ) : (
+                <>
+                  <div className="mod-bulk-bar">
+                    <label className="mod-check-all">
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.size === contributions.length}
+                        onChange={toggleAll}
+                      />
+                      {checkedIds.size > 0 ? `${checkedIds.size} selected` : 'Select all'}
+                    </label>
+                    {checkedIds.size > 0 && (
+                      <div className="mod-bulk-actions">
+                        <button
+                          className="mod-btn-approve mod-btn-sm"
+                          onClick={handleBulkApprove}
+                          disabled={bulkProcessing}
+                        >
+                          {bulkProcessing ? '…' : `Approve (${checkedIds.size})`}
+                        </button>
+                        <button
+                          className="mod-btn-reject mod-btn-sm"
+                          onClick={handleBulkReject}
+                          disabled={bulkProcessing}
+                        >
+                          {bulkProcessing ? '…' : `Reject (${checkedIds.size})`}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <ul className="mod-list">
+                    {contributions.map(c => (
+                      <li key={c.id} className="mod-list-row">
+                        <input
+                          type="checkbox"
+                          className="mod-list-check"
+                          checked={checkedIds.has(c.id)}
+                          onChange={() => toggleCheck(c.id)}
+                        />
+                        <button
+                          className={`mod-list-item ${selected?.id === c.id ? 'mod-list-item-active' : ''}`}
+                          onClick={() => { setSelected(c); setActiveTab('contributions') }}
+                        >
+                          <span className="mod-item-type">{c.contribution_type.replace('_', ' ')}</span>
+                          <span className="mod-item-name">{c.payload.name || 'Unnamed Entry'}</span>
+                          <span className="mod-item-meta">
+                            by {c.contributor} · {new Date(c.created_at).toLocaleDateString()}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </aside>
+
+            <section className="mod-content">
+              <div className="mod-tabs">
+                <button className={`mod-tab ${activeTab === 'contributions' ? 'mod-tab-active' : ''}`} onClick={() => setActiveTab('contributions')}>
+                  Contributions
+                  {contributions.length > 0 && (
+                    <span className="mod-tab-badge">{contributions.length}</span>
+                  )}
+                </button>
+                <button className={`mod-tab ${activeTab === 'venues' ? 'mod-tab-active' : ''}`} onClick={() => setActiveTab('venues')}>Venues</button>
+                <button className={`mod-tab ${activeTab === 'fields' ? 'mod-tab-active' : ''}`} onClick={() => setActiveTab('fields')}>Manage Fields</button>
+                <button className={`mod-tab ${activeTab === 'settings' ? 'mod-tab-active' : ''}`} onClick={() => setActiveTab('settings')}>Category Settings</button>
+                <button className={`mod-tab ${activeTab === 'history' ? 'mod-tab-active' : ''}`} onClick={() => setActiveTab('history')}>History</button>
+              </div>
+
+              {activeTab === 'contributions' && (
+                !selected ? (
+                  <div className="mod-empty-state">
+                    <p>Select a contribution to start reviewing</p>
+                  </div>
+                ) : (
+                  <div className="mod-detail">
+                    <div className="mod-detail-header">
+                      <h2>{selected.payload.name || 'Review Submission'}</h2>
+                      <span className="mod-badge">{selected.contribution_type.replace('_', ' ')}</span>
+                    </div>
+                    <p className="mod-contributor">
+                      Submitted by <strong>{selected.contributor}</strong> on {new Date(selected.created_at).toLocaleString()}
+                    </p>
+                    <div className="mod-section">
+                      <h3>Submitted Data</h3>
+                      {renderPayload(selected.payload)}
+                    </div>
+                    {selected.payload.latitude && selected.payload.longitude && (
+                      <div className="mod-section">
+                        <h3>Location</h3>
+                        <a
+                          href={`https://www.openstreetmap.org/?mlat=${selected.payload.latitude}&mlon=${selected.payload.longitude}&zoom=16`}
+                          target="_blank" rel="noreferrer" className="mod-osm-link"
+                        >
+                          View on OpenStreetMap
+                        </a>
+                      </div>
+                    )}
+                    <div className="mod-section">
+                      <h3>Rejection Note (optional)</h3>
+                      <textarea
+                        className="mod-reject-note"
+                        placeholder="Provide a reason if rejecting..."
+                        value={rejectNote}
+                        onChange={e => setRejectNote(e.target.value)}
+                      />
+                    </div>
+                    <div className="mod-actions">
+                      <button className="mod-btn-approve" onClick={() => handleApprove(selected.id)} disabled={processing}>
+                        {processing ? 'Saving...' : 'Approve'}
+                      </button>
+                      <button className="mod-btn-reject" onClick={() => handleReject(selected.id)} disabled={processing}>
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+
+              {activeTab === 'venues' && (
+                <VenueManager categorySlug={categorySlug} token={token} />
+              )}
+
+              {activeTab === 'fields' && (
+                <FieldManager categorySlug={categorySlug} token={token} />
+              )}
+
+              {activeTab === 'settings' && (
+                <CategorySettings categorySlug={categorySlug} token={token} />
+              )}
+
+              {activeTab === 'history' && (
+                <HistoryTab categorySlug={categorySlug} token={token} />
+              )}
+            </section>
+          </div>
+        </main>
       </main>
     </div>
   )

@@ -1,5 +1,10 @@
-import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense, useState, useEffect } from 'react'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
+
+function RedirectVenueEdit() {
+  const { venueSlug } = useParams()
+  return <Navigate to={`/venue/${venueSlug}/edit`} replace />
+}
 
 const HomePage = lazy(() => import('./pages/HomePage'))
 const CategoryDetailPage = lazy(() => import('./pages/CategoryDetailPage'))
@@ -23,18 +28,50 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/TermsPage'))
 const CommunityGuidelinesPage = lazy(() => import('./pages/CommunityGuidelinesPage'))
 const OpenDataLicensePage = lazy(() => import('./pages/OpenDataLicensePage'))
+const SearchResultsPage = lazy(() => import('./pages/SearchResultsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const FeedPage = lazy(() => import('./pages/FeedPage'))
+const CityPage = lazy(() => import('./pages/CityPage'))
+const CountryPage = lazy(() => import('./pages/CountryPage'))
+const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'))
+const ApiDocsPage = lazy(() => import('./pages/ApiDocsPage'))
 
 import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
+import BackToTop from './components/BackToTop'
 
 function PageLoader() {
-  return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-light)' }}>Loading…</div>
+  return (
+    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, color: 'var(--text-light)' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid var(--border)', borderTopColor: 'var(--link)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <span style={{ fontSize: 14 }}>Loading…</span>
+      </div>
+    </div>
+  )
+}
+
+function OfflineBanner() {
+  const [offline, setOffline] = useState(!navigator.onLine)
+  useEffect(() => {
+    const on = () => setOffline(false)
+    const off = () => setOffline(true)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off) }
+  }, [])
+  if (!offline) return null
+  return (
+    <div style={{ background: '#fef3c7', borderBottom: '1px solid #f59e0b', padding: '8px 16px', textAlign: 'center', fontSize: 13, color: '#92400e' }}>
+      You are offline. Some features may not be available.
+    </div>
+  )
 }
 
 function App() {
   return (
     <ErrorBoundary>
+      <OfflineBanner />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -44,6 +81,7 @@ function App() {
           <Route path="/category/:slug/venues" element={<CategoryVenuesPage />} />
           <Route path="/venue/:venueSlug" element={<VenuePage />} />
           <Route path="/venue/:venueSlug/edit" element={<EditVenuePage />} />
+          <Route path="/venue/:categorySlug/:venueSlug/edit" element={<RedirectVenueEdit />} />
           <Route path="/venue/:venueSlug/add-category" element={<AddCategoryPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -60,10 +98,17 @@ function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/guidelines" element={<CommunityGuidelinesPage />} />
           <Route path="/license" element={<OpenDataLicensePage />} />
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/city/:cityName" element={<CityPage />} />
+          <Route path="/country/:countryName" element={<CountryPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/api-docs" element={<ApiDocsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
       <Footer />
+      <BackToTop />
     </ErrorBoundary>
   )
 }

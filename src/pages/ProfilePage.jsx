@@ -1,11 +1,21 @@
 // src/pages/ProfilePage.jsx
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import toast from 'react-hot-toast';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import Navbar from '../components/Navbar';
+import StarRating from '../components/StarRating';
 import api from '../api/client';
+import '../styles/wiki.css';
 import '../styles/ProfilePage.css';
+
+const MapIcon = L.icon({ iconUrl: markerIcon, shadowUrl: markerShadow, iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34] });
 
 const TABS = [
   { key: 'contributions', label: 'Contributions' },
@@ -13,6 +23,7 @@ const TABS = [
   { key: 'ratings', label: 'Ratings' },
   { key: 'categories', label: 'Categories' },
   { key: 'stats', label: 'Stats' },
+  { key: 'map', label: 'Map' },
 ];
 
 const PAGE_SIZE = 15;
@@ -49,7 +60,7 @@ function Pagination({ currentPage, totalPages, totalCount, pageSize, onPageChang
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        ← Prev
+        &larr; Prev
       </button>
 
       <div className="profile-page-numbers">
@@ -73,26 +84,13 @@ function Pagination({ currentPage, totalPages, totalCount, pageSize, onPageChang
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        Next →
+        Next &rarr;
       </button>
 
       <span className="profile-page-info">
         {startItem}–{endItem} of {totalCount}
       </span>
     </div>
-  );
-}
-
-// ─── STAR RATING DISPLAY ───────────────────────────────────────
-function StarRating({ rating, size = 'medium' }) {
-  const sizeClass = size === 'small' ? 'stars-small' : size === 'large' ? 'stars-large' : '';
-  
-  return (
-    <span className={`star-rating ${sizeClass}`}>
-      {[1, 2, 3, 4, 5].map(star => (
-        <span key={star} className={`star ${star <= rating ? 'filled' : ''}`}>★</span>
-      ))}
-    </span>
   );
 }
 
@@ -143,20 +141,20 @@ function ContributionsTab({ contributions }) {
 
   const filteredContributions = useMemo(() => {
     if (!contributions) return [];
-    
+
     let result = [...contributions];
-    
+
     if (statusFilter !== 'all') {
       result = result.filter(c => c.status === statusFilter);
     }
-    
+
     result.sort((a, b) => {
       if (sortBy === 'date_desc') return new Date(b.created_at) - new Date(a.created_at);
       if (sortBy === 'date_asc') return new Date(a.created_at) - new Date(b.created_at);
       if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
       return 0;
     });
-    
+
     return result;
   }, [contributions, statusFilter, sortBy]);
 
@@ -174,10 +172,10 @@ function ContributionsTab({ contributions }) {
     <div className="profile-contributions">
       <div className="profile-toolbar">
         <StatusFilter value={statusFilter} onChange={setStatusFilter} counts={counts} />
-        
-        <select 
+
+        <select
           className="profile-sort-select"
-          value={sortBy} 
+          value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
         >
           <option value="date_desc">Newest first</option>
@@ -256,9 +254,9 @@ function VenuesTab({ venues }) {
   const filteredVenues = useMemo(() => {
     if (!venues) return [];
     if (!search.trim()) return venues;
-    
+
     const q = search.toLowerCase();
-    return venues.filter(v => 
+    return venues.filter(v =>
       v.name?.toLowerCase().includes(q) ||
       v.city?.toLowerCase().includes(q) ||
       v.country?.toLowerCase().includes(q) ||
@@ -337,16 +335,14 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
 
   const filteredRatings = useMemo(() => {
     if (!ratings) return [];
-    
+
     let result = [...ratings];
-    
-    // Filter by score
+
     if (filterScore !== 'all') {
       const score = parseInt(filterScore);
       result = result.filter(r => r.score === score);
     }
-    
-    // Sort
+
     result.sort((a, b) => {
       if (sortBy === 'date_desc') return new Date(b.created_at) - new Date(a.created_at);
       if (sortBy === 'date_asc') return new Date(a.created_at) - new Date(b.created_at);
@@ -354,7 +350,7 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
       if (sortBy === 'score_asc') return a.score - b.score;
       return 0;
     });
-    
+
     return result;
   }, [ratings, sortBy, filterScore]);
 
@@ -364,20 +360,17 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
     page * PAGE_SIZE
   );
 
-  // Calculate stats
   const stats = useMemo(() => {
     if (!ratings || ratings.length === 0) return null;
-    
+
     const total = ratings.length;
     const sum = ratings.reduce((acc, r) => acc + r.score, 0);
     const avg = sum / total;
     const withComment = ratings.filter(r => r.comment && r.comment.trim()).length;
-    
-    // Distribution
+
     const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     ratings.forEach(r => distribution[r.score]++);
-    
-    // Most given score
+
     let mostGiven = 5;
     let maxCount = 0;
     for (const [score, count] of Object.entries(distribution)) {
@@ -386,7 +379,7 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
         mostGiven = parseInt(score);
       }
     }
-    
+
     return { total, avg: avg.toFixed(1), withComment, distribution, mostGiven };
   }, [ratings]);
 
@@ -397,7 +390,7 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
           {isOwnProfile ? "You haven't rated any venues yet." : `${username} hasn't rated any venues yet.`}
         </p>
         {isOwnProfile && (
-          <Link to="/" className="profile-cta-btn">Explore venues to rate →</Link>
+          <Link to="/" className="profile-cta-btn">Explore venues to rate &rarr;</Link>
         )}
       </div>
     );
@@ -405,7 +398,6 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
 
   return (
     <div className="profile-ratings">
-      {/* Rating Summary */}
       <div className="ratings-summary">
         <div className="ratings-summary-main">
           <span className="ratings-summary-avg">{stats.avg}</span>
@@ -413,15 +405,14 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
           <span className="ratings-summary-count">{stats.total} ratings</span>
         </div>
         <div className="ratings-summary-details">
-          <span>Most given: <strong>{stats.mostGiven}★</strong></span>
+          <span>Most given: <strong>{stats.mostGiven} stars</strong></span>
           <span>With comments: <strong>{stats.withComment}</strong></span>
         </div>
       </div>
 
-      {/* Filters */}
       <div className="profile-toolbar">
         <div className="profile-score-filter">
-          <button 
+          <button
             className={`profile-filter-btn ${filterScore === 'all' ? 'profile-filter-btn-active' : ''}`}
             onClick={() => setFilterScore('all')}
           >
@@ -433,14 +424,14 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
               className={`profile-filter-btn ${filterScore === String(score) ? 'profile-filter-btn-active' : ''}`}
               onClick={() => setFilterScore(String(score))}
             >
-              {score}★ <span className="filter-count-small">({stats.distribution[score]})</span>
+              {score} stars <span className="filter-count-small">({stats.distribution[score]})</span>
             </button>
           ))}
         </div>
-        
-        <select 
+
+        <select
           className="profile-sort-select"
-          value={sortBy} 
+          value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
         >
           <option value="date_desc">Newest first</option>
@@ -450,9 +441,8 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
         </select>
       </div>
 
-      {/* Ratings List */}
       {paginatedRatings.length === 0 ? (
-        <p className="profile-empty">No {filterScore}★ ratings.</p>
+        <p className="profile-empty">No {filterScore}-star ratings.</p>
       ) : (
         <div className="profile-ratings-list">
           {paginatedRatings.map((r) => (
@@ -463,17 +453,17 @@ function RatingsTab({ ratings, username, isOwnProfile }) {
                 </Link>
                 <StarRating rating={r.score} size="small" />
               </div>
-              
+
               {r.venue.city && (
                 <span className="profile-rating-location">
-                  📍 {r.venue.city}{r.venue.country ? `, ${r.venue.country}` : ''}
+                  {r.venue.city}{r.venue.country ? `, ${r.venue.country}` : ''}
                 </span>
               )}
-              
+
               {r.comment && (
                 <p className="profile-rating-comment">{r.comment}</p>
               )}
-              
+
               <span className="profile-rating-date">
                 {new Date(r.created_at).toLocaleDateString('en-GB', {
                   year: 'numeric', month: 'short', day: 'numeric'
@@ -514,12 +504,11 @@ function CategoriesTab({ ownedCategories, moderatedCategories }) {
           </h3>
           <div className="profile-cat-list">
             {ownedCategories.map((cat) => (
-              <Link 
-                key={cat.id} 
-                to={`/category/${cat.slug}`} 
+              <Link
+                key={cat.id}
+                to={`/category/${cat.slug}`}
                 className="profile-cat-card"
               >
-                <span className="profile-cat-icon">{cat.icon || '📁'}</span>
                 <span className="profile-cat-name">{cat.name}</span>
                 {cat.venue_count !== undefined && (
                   <span className="profile-cat-venues">{cat.venue_count} venues</span>
@@ -538,12 +527,11 @@ function CategoriesTab({ ownedCategories, moderatedCategories }) {
           </h3>
           <div className="profile-cat-list">
             {moderatedCategories.map((cat) => (
-              <Link 
-                key={cat.id} 
-                to={`/category/${cat.slug}`} 
+              <Link
+                key={cat.id}
+                to={`/category/${cat.slug}`}
                 className="profile-cat-card"
               >
-                <span className="profile-cat-icon">{cat.icon || '📁'}</span>
                 <span className="profile-cat-name">{cat.name}</span>
               </Link>
             ))}
@@ -559,17 +547,14 @@ function StatsTab({ profile }) {
   const stats = useMemo(() => {
     if (!profile) return null;
 
-    // Days since joined
     const joinDate = new Date(profile.date_joined);
     const now = new Date();
     const diffTime = Math.abs(now - joinDate);
     const daysJoined = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-    // Contributions per day
     const contribCount = profile.contribution_count || 0;
     const contribsPerDay = (contribCount / daysJoined).toFixed(2);
 
-    // Success rate & favorite category
     let successRate = 0;
     let favoriteCat = null;
     let approvedCount = 0;
@@ -596,7 +581,6 @@ function StatsTab({ profile }) {
         successRate = 100;
       }
 
-      // Find favorite category
       let maxCount = 0;
       for (const [cat, count] of Object.entries(catCounts)) {
         if (count > maxCount) {
@@ -606,25 +590,22 @@ function StatsTab({ profile }) {
       }
     }
 
-    // ============ RATING STATS ============
     const ratings = profile.recent_ratings || [];
     const ratingsCount = profile.ratings_given_count || ratings.length;
     const avgRating = profile.average_rating_given;
-    
-    // Rating distribution & personality
+
     let ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let ratingsWithComment = 0;
     let mostGivenScore = null;
     let firstRatingDate = null;
     let lastRatingDate = null;
-    
+
     if (ratings.length > 0) {
       ratings.forEach(r => {
         ratingDistribution[r.score] = (ratingDistribution[r.score] || 0) + 1;
         if (r.comment && r.comment.trim()) ratingsWithComment++;
       });
-      
-      // Most given score
+
       let maxScoreCount = 0;
       for (const [score, count] of Object.entries(ratingDistribution)) {
         if (count > maxScoreCount) {
@@ -632,37 +613,33 @@ function StatsTab({ profile }) {
           mostGivenScore = parseInt(score);
         }
       }
-      
-      // First and last rating dates
+
       const sortedByDate = [...ratings].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
       firstRatingDate = sortedByDate[0]?.created_at;
       lastRatingDate = sortedByDate[sortedByDate.length - 1]?.created_at;
     }
-    
-    // Rating personality
+
     let ratingPersonality = null;
     if (avgRating) {
-      if (avgRating >= 4.2) ratingPersonality = { type: 'generous', label: 'Generous Rater', emoji: '🌟', color: '#27ae60' };
-      else if (avgRating <= 2.5) ratingPersonality = { type: 'tough', label: 'Tough Critic', emoji: '🔍', color: '#e74c3c' };
-      else if (avgRating >= 2.8 && avgRating <= 3.2) ratingPersonality = { type: 'balanced', label: 'Balanced Judge', emoji: '⚖️', color: '#3498db' };
-      else if (avgRating >= 3.5) ratingPersonality = { type: 'positive', label: 'Positive Reviewer', emoji: '👍', color: '#9b59b6' };
-      else ratingPersonality = { type: 'critical', label: 'Critical Thinker', emoji: '🤔', color: '#f39c12' };
+      if (avgRating >= 4.2) ratingPersonality = { type: 'generous', label: 'Generous Rater', color: '#27ae60' };
+      else if (avgRating <= 2.5) ratingPersonality = { type: 'tough', label: 'Tough Critic', color: '#e74c3c' };
+      else if (avgRating >= 2.8 && avgRating <= 3.2) ratingPersonality = { type: 'balanced', label: 'Balanced Judge', color: '#3498db' };
+      else if (avgRating >= 3.5) ratingPersonality = { type: 'positive', label: 'Positive Reviewer', color: '#9b59b6' };
+      else ratingPersonality = { type: 'critical', label: 'Critical Thinker', color: '#f39c12' };
     }
-    
-    // Badges
+
     const badges = [];
-    if (ratingsCount >= 100) badges.push({ label: 'Century Reviewer', emoji: '💯', desc: '100+ ratings' });
-    else if (ratingsCount >= 50) badges.push({ label: 'Prolific Reviewer', emoji: '📝', desc: '50+ ratings' });
-    else if (ratingsCount >= 10) badges.push({ label: 'Active Reviewer', emoji: '✍️', desc: '10+ ratings' });
-    
-    if (ratingsWithComment >= 10) badges.push({ label: 'Comment Writer', emoji: '💬', desc: 'Leaves detailed feedback' });
-    if (ratingDistribution[5] >= 20) badges.push({ label: '5-Star Fan', emoji: '⭐', desc: 'Gave 20+ perfect scores' });
-    if (ratingDistribution[1] >= 5) badges.push({ label: 'Honest Critic', emoji: '🎯', desc: 'Not afraid to rate low' });
-    if (contribCount >= 50 && ratingsCount >= 20) badges.push({ label: 'Power User', emoji: '⚡', desc: 'Active contributor & reviewer' });
-    
-    // Ratings per day
-    const ratingsPerDay = ratingsCount > 0 && daysJoined > 0 
-      ? (ratingsCount / daysJoined).toFixed(2) 
+    if (ratingsCount >= 100) badges.push({ label: 'Century Reviewer', desc: '100+ ratings' });
+    else if (ratingsCount >= 50) badges.push({ label: 'Prolific Reviewer', desc: '50+ ratings' });
+    else if (ratingsCount >= 10) badges.push({ label: 'Active Reviewer', desc: '10+ ratings' });
+
+    if (ratingsWithComment >= 10) badges.push({ label: 'Comment Writer', desc: 'Leaves detailed feedback' });
+    if (ratingDistribution[5] >= 20) badges.push({ label: '5-Star Fan', desc: 'Gave 20+ perfect scores' });
+    if (ratingDistribution[1] >= 5) badges.push({ label: 'Honest Critic', desc: 'Not afraid to rate low' });
+    if (contribCount >= 50 && ratingsCount >= 20) badges.push({ label: 'Power User', desc: 'Active contributor & reviewer' });
+
+    const ratingsPerDay = ratingsCount > 0 && daysJoined > 0
+      ? (ratingsCount / daysJoined).toFixed(2)
       : '0.00';
 
     return {
@@ -676,7 +653,6 @@ function StatsTab({ profile }) {
       totalContributions: contribCount,
       totalVenues: profile.my_venues?.length || 0,
       totalCategories: (profile.owned_categories?.length || 0) + (profile.moderated_categories?.length || 0),
-      // Rating stats
       ratingsCount,
       avgRating,
       ratingDistribution,
@@ -694,14 +670,12 @@ function StatsTab({ profile }) {
 
   return (
     <div className="profile-stats-tab">
-      {/* Badges Section */}
       {stats.badges.length > 0 && (
         <>
-          <h3 className="profile-section-title">🏆 Badges Earned</h3>
+          <h3 className="profile-section-title">Badges Earned</h3>
           <div className="profile-badges">
             {stats.badges.map((badge, i) => (
               <div key={i} className="profile-badge">
-                <span className="profile-badge-emoji">{badge.emoji}</span>
                 <span className="profile-badge-label">{badge.label}</span>
                 <span className="profile-badge-desc">{badge.desc}</span>
               </div>
@@ -710,79 +684,68 @@ function StatsTab({ profile }) {
         </>
       )}
 
-      {/* Activity Overview */}
       <h3 className="profile-section-title">Activity Overview</h3>
       <div className="profile-stats-grid">
         <div className="profile-stat-card">
           <div className="profile-stat-value">{stats.daysJoined}</div>
           <div className="profile-stat-label">Days on Mapedia</div>
         </div>
-
         <div className="profile-stat-card">
           <div className="profile-stat-value">{stats.contribsPerDay}</div>
           <div className="profile-stat-label">Contributions / Day</div>
         </div>
-
         <div className="profile-stat-card">
           <div className="profile-stat-value">{stats.totalContributions}</div>
           <div className="profile-stat-label">Total Contributions</div>
         </div>
-
         <div className="profile-stat-card">
           <div className="profile-stat-value">{stats.totalVenues}</div>
           <div className="profile-stat-label">Venues Contributed</div>
         </div>
       </div>
 
-      {/* Rating Stats */}
       {stats.ratingsCount > 0 && (
         <>
-          <h3 className="profile-section-title" style={{ marginTop: 32 }}>⭐ Rating Stats</h3>
-          
-          {/* Rating Personality */}
+          <h3 className="profile-section-title" style={{ marginTop: 32 }}>Rating Stats</h3>
+
           {stats.ratingPersonality && (
-            <div 
+            <div
               className="profile-personality-card"
               style={{ borderColor: stats.ratingPersonality.color }}
             >
-              <span className="profile-personality-emoji">{stats.ratingPersonality.emoji}</span>
-              <span 
+              <span
                 className="profile-personality-label"
                 style={{ color: stats.ratingPersonality.color }}
               >
                 {stats.ratingPersonality.label}
               </span>
               <span className="profile-personality-avg">
-                Average rating: {stats.avgRating}★
+                Average rating: {stats.avgRating} / 5
               </span>
             </div>
           )}
-          
+
           <div className="profile-stats-grid">
             <div className="profile-stat-card">
               <div className="profile-stat-value">{stats.ratingsCount}</div>
               <div className="profile-stat-label">Total Ratings</div>
             </div>
-
             <div className="profile-stat-card">
               <div className="profile-stat-value" style={{ color: '#f5a623' }}>
-                {stats.avgRating || '—'}★
+                {stats.avgRating || '—'} / 5
               </div>
               <div className="profile-stat-label">Average Given</div>
             </div>
-
             <div className="profile-stat-card">
-              <div className="profile-stat-value">{stats.mostGivenScore}★</div>
+              <div className="profile-stat-value">{stats.mostGivenScore} stars</div>
               <div className="profile-stat-label">Most Given Score</div>
             </div>
-
             <div className="profile-stat-card">
               <div className="profile-stat-value">{stats.ratingsWithComment}</div>
               <div className="profile-stat-label">With Comments</div>
             </div>
           </div>
 
-          {/* Rating Distribution */}
           <div className="profile-rating-distribution">
             <h4>Rating Distribution</h4>
             <div className="distribution-bars">
@@ -791,10 +754,10 @@ function StatsTab({ profile }) {
                 const percentage = stats.ratingsCount > 0 ? (count / stats.ratingsCount) * 100 : 0;
                 return (
                   <div key={score} className="distribution-row">
-                    <span className="distribution-label">{score}★</span>
+                    <span className="distribution-label">{score} stars</span>
                     <div className="distribution-bar">
-                      <div 
-                        className="distribution-fill" 
+                      <div
+                        className="distribution-fill"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -806,13 +769,11 @@ function StatsTab({ profile }) {
             </div>
           </div>
 
-          {/* Rating Activity */}
           <div className="profile-stats-grid" style={{ marginTop: 16 }}>
             <div className="profile-stat-card">
               <div className="profile-stat-value">{stats.ratingsPerDay}</div>
               <div className="profile-stat-label">Ratings / Day</div>
             </div>
-            
             {stats.firstRatingDate && (
               <div className="profile-stat-card">
                 <div className="profile-stat-value" style={{ fontSize: 16 }}>
@@ -821,7 +782,6 @@ function StatsTab({ profile }) {
                 <div className="profile-stat-label">First Rating</div>
               </div>
             )}
-            
             {stats.lastRatingDate && (
               <div className="profile-stat-card">
                 <div className="profile-stat-value" style={{ fontSize: 16 }}>
@@ -834,29 +794,24 @@ function StatsTab({ profile }) {
         </>
       )}
 
-      {/* Contribution Breakdown */}
       {stats.totalContributions > 0 && (
         <>
           <h3 className="profile-section-title" style={{ marginTop: 32 }}>Contribution Breakdown</h3>
-          
           <div className="profile-stats-grid">
             <div className="profile-stat-card profile-stat-approved">
               <div className="profile-stat-value">{stats.approvedCount}</div>
               <div className="profile-stat-label">Approved</div>
             </div>
-
             <div className="profile-stat-card profile-stat-pending">
               <div className="profile-stat-value">{stats.pendingCount}</div>
               <div className="profile-stat-label">Pending</div>
             </div>
-
             <div className="profile-stat-card profile-stat-rejected">
               <div className="profile-stat-value">{stats.rejectedCount}</div>
               <div className="profile-stat-label">Rejected</div>
             </div>
-
             <div className="profile-stat-card">
-              <div 
+              <div
                 className="profile-stat-value"
                 style={{ color: stats.successRate >= 70 ? '#27ae60' : stats.successRate >= 50 ? '#f39c12' : '#e74c3c' }}
               >
@@ -879,6 +834,122 @@ function StatsTab({ profile }) {
           </Link>
         </>
       )}
+
+      {profile.contributions?.length > 0 && (
+        <ContributionHeatmap contributions={profile.contributions} />
+      )}
+    </div>
+  );
+}
+
+// ─── CONTRIBUTION HEATMAP ─────────────────────────────────────
+function ContributionHeatmap({ contributions }) {
+  const cellData = useMemo(() => {
+    const counts = {};
+    contributions.forEach(c => {
+      const d = c.created_at?.slice(0, 10);
+      if (d) counts[d] = (counts[d] || 0) + 1;
+    });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const startOffset = today.getDay();
+    const totalDays = 52 * 7 + startOffset;
+    const cells = [];
+    for (let i = totalDays - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      cells.push({ date: key, count: counts[key] || 0 });
+    }
+    return cells;
+  }, [contributions]);
+
+  const maxCount = useMemo(() => Math.max(1, ...cellData.map(c => c.count)), [cellData]);
+
+  const getLevel = (count) => {
+    if (count === 0) return 0;
+    if (count <= maxCount * 0.25) return 1;
+    if (count <= maxCount * 0.5) return 2;
+    if (count <= maxCount * 0.75) return 3;
+    return 4;
+  };
+
+  const weeks = [];
+  for (let i = 0; i < cellData.length; i += 7) {
+    weeks.push(cellData.slice(i, i + 7));
+  }
+
+  const totalContribs = cellData.reduce((sum, c) => sum + c.count, 0);
+
+  return (
+    <>
+      <h3 className="profile-section-title" style={{ marginTop: 32 }}>
+        Contribution Activity
+        <span style={{ fontSize: 12, fontWeight: 400, marginLeft: 8, color: 'var(--text-muted, #888)' }}>
+          {totalContribs} in the last year
+        </span>
+      </h3>
+      <div className="contrib-heatmap-wrap">
+        <div className="contrib-heatmap">
+          {weeks.map((week, wi) => (
+            <div key={wi} className="contrib-heatmap-col">
+              {week.map((cell, di) => (
+                <div
+                  key={di}
+                  className={`contrib-heatmap-cell contrib-heatmap-l${getLevel(cell.count)}`}
+                  title={`${cell.date}: ${cell.count} contribution${cell.count !== 1 ? 's' : ''}`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="contrib-heatmap-legend">
+          <span>Less</span>
+          {[0, 1, 2, 3, 4].map(l => (
+            <div key={l} className={`contrib-heatmap-cell contrib-heatmap-l${l}`} />
+          ))}
+          <span>More</span>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── PROFILE CONTRIBUTION MAP ────────────────────────────────
+function ProfileContribMap({ venues }) {
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => mapRef.current.invalidateSize(), 100);
+    }
+  }, []);
+
+  const withCoords = (venues || []).filter(v => v.latitude && v.longitude);
+  if (withCoords.length === 0) {
+    return <p style={{ color: 'var(--text-muted)', padding: '32px 0', textAlign: 'center' }}>No venues with location data.</p>;
+  }
+  const lat = withCoords.reduce((s, v) => s + parseFloat(v.latitude), 0) / withCoords.length;
+  const lng = withCoords.reduce((s, v) => s + parseFloat(v.longitude), 0) / withCoords.length;
+  return (
+    <div style={{ height: 460, width: '100%' }}>
+      <MapContainer ref={mapRef} center={[lat, lng]} zoom={4} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {withCoords.map(venue => (
+          <Marker key={venue.slug} position={[parseFloat(venue.latitude), parseFloat(venue.longitude)]} icon={MapIcon}>
+            <Popup>
+              <Link to={`/venue/${venue.slug}`} style={{ color: '#0066cc', fontWeight: 600 }}>{venue.name}</Link>
+              {(venue.city || venue.country) && (
+                <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>{[venue.city, venue.country].filter(Boolean).join(', ')}</div>
+              )}
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 }
@@ -921,12 +992,9 @@ function ProfilePage() {
         const res = await api.get(endpoint, { headers });
         setProfile(res.data);
         setBio(res.data.bio || '');
-        
-        // Fetch ratings
-        const ratingsEndpoint = username 
-          ? `/users/${username}/ratings/` 
-          : '/my-ratings/';
-        
+
+        const ratingsEndpoint = username ? `/users/${username}/ratings/` : '/my-ratings/';
+
         try {
           const ratingsRes = await api.get(ratingsEndpoint, { headers });
           setRatings(ratingsRes.data.results || []);
@@ -934,7 +1002,7 @@ function ProfilePage() {
           console.log('Ratings fetch error:', err);
           setRatings([]);
         }
-        
+
       } catch (err) {
         console.error("Failed to load profile:", err);
         if (err.response?.status === 401) {
@@ -962,9 +1030,7 @@ function ProfilePage() {
     try {
       const formData = new FormData();
       formData.append('bio', bio);
-      if (avatar) {
-        formData.append('avatar', avatar);
-      }
+      if (avatar) formData.append('avatar', avatar);
 
       const res = await api.patch('/auth/profile/', formData, {
         headers: {
@@ -977,8 +1043,9 @@ function ProfilePage() {
       setSuccess(true);
       setEditing(false);
       setAvatar(null);
+      toast.success('Profile saved!');
     } catch (err) {
-      console.error('Profile save error:', err);
+      toast.error(err.response?.data?.detail || 'Failed to save profile.');
     } finally {
       setSaving(false);
     }
@@ -993,7 +1060,7 @@ function ProfilePage() {
       localStorage.clear();
       navigate('/');
     } catch (err) {
-      console.error('Delete error:', err);
+      toast.error('Failed to delete account. Please try again.');
       setDeleting(false);
     }
   };
@@ -1020,6 +1087,21 @@ function ProfilePage() {
     ? (profile.avatar.startsWith('http') ? profile.avatar : `https://mapedia.org${profile.avatar}`)
     : null;
 
+  const contribCount = profile.contribution_count || 0;
+  const ratingsCount = profile.ratings_given_count || ratings.length || 0;
+
+  const sidebarBadges = [];
+  if (contribCount >= 100) sidebarBadges.push({ label: 'Century Contributor', desc: '100+ venues added' });
+  else if (contribCount >= 50) sidebarBadges.push({ label: 'Prolific Contributor', desc: '50+ venues added' });
+  else if (contribCount >= 10) sidebarBadges.push({ label: 'Active Contributor', desc: '10+ venues added' });
+  else if (contribCount >= 1) sidebarBadges.push({ label: 'First Contribution', desc: 'Added their first venue' });
+  if (ratingsCount >= 100) sidebarBadges.push({ label: 'Century Reviewer', desc: '100+ ratings' });
+  else if (ratingsCount >= 50) sidebarBadges.push({ label: 'Prolific Reviewer', desc: '50+ ratings' });
+  else if (ratingsCount >= 10) sidebarBadges.push({ label: 'Active Reviewer', desc: '10+ ratings' });
+  if (contribCount >= 50 && ratingsCount >= 20) sidebarBadges.push({ label: 'Power User', desc: 'Active contributor & reviewer' });
+  if (profile.is_trusted) sidebarBadges.push({ label: 'Trusted Contributor', desc: 'Verified contributor' });
+  if ((profile.owned_categories?.length || 0) >= 1) sidebarBadges.push({ label: 'Category Owner', desc: 'Created a category' });
+
   return (
     <div>
       <Helmet>
@@ -1029,51 +1111,70 @@ function ProfilePage() {
         <meta name="robots" content="noindex, follow" />
       </Helmet>
       <Navbar />
-      <main className="profile-main">
-        <div className="profile-layout">
-          {/* SIDEBAR */}
+
+      <main className="wiki-page profile-page">
+        <div className="profile-portal">
+
+          {/* ── LEFT: Profile sidebar ── */}
           <aside className="profile-sidebar">
-            <div className="profile-avatar">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="avatar" className="avatar-img" />
-              ) : (
-                <div className="avatar-placeholder">
-                  {profile.username?.[0]?.toUpperCase() || '?'}
-                </div>
+
+            {/* Avatar + identity */}
+            <div className="profile-card">
+              <div className="profile-avatar-wrap">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="profile-avatar-img" />
+                ) : (
+                  <div className="profile-avatar-placeholder">
+                    {profile.username?.[0]?.toUpperCase() || '?'}
+                  </div>
+                )}
+              </div>
+              <div className="profile-card-name">@{profile.username}</div>
+              {profile.role && <div className="profile-card-role">{profile.role}</div>}
+              {profile.is_trusted && (
+                <div className="profile-card-trusted">Trusted Contributor</div>
+              )}
+              {profile.bio && !editing && (
+                <p className="profile-card-bio">{profile.bio}</p>
               )}
             </div>
 
-            <h1 className="profile-username">{profile.username}</h1>
-            {profile.role && <p className="profile-role">{profile.role}</p>}
-
-            <div className="profile-quick-stats">
-              <div className="profile-quick-stat">
-                <span className="profile-quick-stat-number">{profile.contribution_count || 0}</span>
-                <span className="profile-quick-stat-label">Contributions</span>
-              </div>
-              <div className="profile-quick-stat">
-                <span className="profile-quick-stat-number">{profile.ratings_given_count || ratings.length || 0}</span>
-                <span className="profile-quick-stat-label">Ratings</span>
-              </div>
-              <div className="profile-quick-stat">
-                <span className="profile-quick-stat-number">{profile.my_venues?.length || 0}</span>
-                <span className="profile-quick-stat-label">Venues</span>
+            {/* Quick stats */}
+            <div className="profile-card profile-stats-row-card">
+              <div className="profile-stats-row">
+                <div className="profile-stat-cell">
+                  <span className="profile-stat-num">{contribCount}</span>
+                  <span className="profile-stat-lbl">Contributions</span>
+                </div>
+                <div className="profile-stat-cell">
+                  <span className="profile-stat-num">{ratingsCount}</span>
+                  <span className="profile-stat-lbl">Ratings</span>
+                </div>
+                <div className="profile-stat-cell">
+                  <span className="profile-stat-num">{profile.my_venues?.length || 0}</span>
+                  <span className="profile-stat-lbl">Venues</span>
+                </div>
               </div>
             </div>
 
-            {/* Average Rating Given */}
-            {profile.average_rating_given && (
-              <div className="profile-avg-rating">
-                <span className="profile-avg-rating-value">{profile.average_rating_given}★</span>
-                <span className="profile-avg-rating-label">avg rating given</span>
+            {/* Badges */}
+            {sidebarBadges.length > 0 && (
+              <div className="profile-card">
+                <div className="profile-card-section-title">Badges</div>
+                <div className="profile-badges-list">
+                  {sidebarBadges.map((b, i) => (
+                    <div key={i} className="profile-badge-item">
+                      <div className="profile-badge-item-label">{b.label}</div>
+                      <div className="profile-badge-item-desc">{b.desc}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
-            {profile.is_trusted && (
-              <div className="profile-trusted">✓ Trusted Contributor</div>
-            )}
-
-            <div className="profile-info">
+            {/* User info */}
+            <div className="profile-card">
+              <div className="profile-card-section-title">User Info</div>
               <table className="profile-info-table">
                 <tbody>
                   {isOwnProfile && profile.email && (
@@ -1083,90 +1184,81 @@ function ProfilePage() {
                     </tr>
                   )}
                   <tr>
-                    <td>User ID</td>
-                    <td>{profile.id}</td>
+                    <td>Member since</td>
+                    <td>{new Date(profile.date_joined).toLocaleDateString('en-GB', { year: 'numeric', month: 'short' })}</td>
                   </tr>
-                  <tr>
-                    <td>Joined</td>
-                    <td>{new Date(profile.date_joined).toLocaleDateString()}</td>
-                  </tr>
+                  {profile.average_rating_given && (
+                    <tr>
+                      <td>Avg rating</td>
+                      <td>{profile.average_rating_given} / 5</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
-            {profile.bio && !editing && (
-              <p className="profile-bio">{profile.bio}</p>
-            )}
-
+            {/* Edit button */}
             {isOwnProfile && !editing && (
               <button className="profile-edit-btn" onClick={() => setEditing(true)}>
                 Edit Profile
               </button>
             )}
 
+            {/* Edit form */}
             {editing && isOwnProfile && (
-              <div className="profile-edit-form">
-                <div className="profile-field">
-                  <label>Bio</label>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Tell us about yourself..."
-                    rows={4}
-                  />
+              <div className="profile-card">
+                <div className="profile-card-section-title">Edit Profile</div>
+                <div className="profile-edit-form">
+                  <div className="profile-field">
+                    <label>Bio</label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell us about yourself..."
+                      rows={4}
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label>Avatar</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setAvatar(e.target.files[0])}
+                    />
+                  </div>
+                  <div className="profile-edit-actions">
+                    <button className="profile-save-btn" onClick={handleSave} disabled={saving}>
+                      {saving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      className="profile-cancel-btn"
+                      onClick={() => { setEditing(false); setBio(profile.bio || ''); setAvatar(null); }}
+                      disabled={saving}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {success && <p className="profile-success">Profile updated!</p>}
                 </div>
-                <div className="profile-field">
-                  <label>Avatar</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setAvatar(e.target.files[0])}
-                  />
-                </div>
-                <div className="profile-edit-actions">
-                  <button 
-                    className="profile-save-btn" 
-                    onClick={handleSave} 
-                    disabled={saving}
-                  >
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                  <button 
-                    className="profile-cancel-btn" 
-                    onClick={() => { setEditing(false); setBio(profile.bio || ''); setAvatar(null); }}
-                    disabled={saving}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                {success && <p className="profile-success">Profile updated!</p>}
               </div>
             )}
 
+            {/* Danger zone */}
             {isOwnProfile && (
-              <div className="profile-danger-zone">
+              <div className="profile-card profile-danger-card">
+                <div className="profile-card-section-title">Danger Zone</div>
                 {!showDeleteConfirm ? (
-                  <button
-                    className="profile-delete-btn"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
+                  <button className="profile-delete-btn" onClick={() => setShowDeleteConfirm(true)}>
                     Delete Account
                   </button>
                 ) : (
                   <div className="profile-delete-confirm">
                     <p>Are you sure? This cannot be undone.</p>
                     <div className="profile-delete-actions">
-                      <button
-                        className="profile-delete-confirm-btn"
-                        onClick={handleDeleteAccount}
-                        disabled={deleting}
-                      >
+                      <button className="profile-delete-confirm-btn" onClick={handleDeleteAccount} disabled={deleting}>
                         {deleting ? 'Deleting...' : 'Yes, delete'}
                       </button>
-                      <button
-                        className="profile-delete-cancel-btn"
-                        onClick={() => setShowDeleteConfirm(false)}
-                      >
+                      <button className="profile-delete-cancel-btn" onClick={() => setShowDeleteConfirm(false)}>
                         Cancel
                       </button>
                     </div>
@@ -1174,57 +1266,50 @@ function ProfilePage() {
                 )}
               </div>
             )}
+
           </aside>
 
-          {/* MAIN CONTENT */}
+          {/* ── RIGHT: Tabs + content ── */}
           <div className="profile-content">
-            <div className="profile-tabs">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  className={`profile-tab ${activeTab === tab.key ? 'profile-tab-active' : ''}`}
-                  onClick={() => setActiveTab(tab.key)}
-                >
-                  {tab.label}
-                  {tab.key === 'contributions' && profile.contributions?.length > 0 && (
-                    <span className="profile-tab-count">{profile.contributions.length}</span>
-                  )}
-                  {tab.key === 'ratings' && (profile.ratings_given_count || ratings.length) > 0 && (
-                    <span className="profile-tab-count">{profile.ratings_given_count || ratings.length}</span>
-                  )}
-                </button>
-              ))}
-            </div>
+            <div className="wiki-box">
+              <div className="profile-content-header">
+                <nav className="wiki-breadcrumb">
+                  <Link to="/">Mapedia</Link>
+                  <span className="wiki-breadcrumb-sep">›</span>
+                  <span>@{profile.username}</span>
+                </nav>
+                <h1 className="profile-content-title">@{profile.username}</h1>
+              </div>
 
-            <div className="profile-tab-content">
-              {activeTab === 'contributions' && (
-                <ContributionsTab contributions={profile.contributions} />
-              )}
+              <div className="profile-tab-bar">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    className={`profile-tab ${activeTab === tab.key ? 'profile-tab-active' : ''}`}
+                    onClick={() => setActiveTab(tab.key)}
+                  >
+                    {tab.label}
+                    {tab.key === 'contributions' && profile.contributions?.length > 0 && (
+                      <span className="profile-tab-count">{profile.contributions.length}</span>
+                    )}
+                    {tab.key === 'ratings' && ratingsCount > 0 && (
+                      <span className="profile-tab-count">{ratingsCount}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
 
-              {activeTab === 'venues' && (
-                <VenuesTab venues={profile.my_venues} />
-              )}
-
-              {activeTab === 'ratings' && (
-                <RatingsTab 
-                  ratings={ratings} 
-                  username={profile.username}
-                  isOwnProfile={isOwnProfile}
-                />
-              )}
-
-              {activeTab === 'categories' && (
-                <CategoriesTab
-                  ownedCategories={profile.owned_categories}
-                  moderatedCategories={profile.moderated_categories}
-                />
-              )}
-
-              {activeTab === 'stats' && (
-                <StatsTab profile={{ ...profile, recent_ratings: ratings }} />
-              )}
+              <div className="profile-tab-content" style={{ padding: activeTab === 'map' ? 0 : '16px' }}>
+                {activeTab === 'contributions' && <ContributionsTab contributions={profile.contributions} />}
+                {activeTab === 'venues' && <VenuesTab venues={profile.my_venues} />}
+                {activeTab === 'ratings' && <RatingsTab ratings={ratings} username={profile.username} isOwnProfile={isOwnProfile} />}
+                {activeTab === 'categories' && <CategoriesTab ownedCategories={profile.owned_categories} moderatedCategories={profile.moderated_categories} />}
+                {activeTab === 'stats' && <StatsTab profile={{ ...profile, recent_ratings: ratings }} />}
+                {activeTab === 'map' && <ProfileContribMap venues={profile.my_venues} />}
+              </div>
             </div>
           </div>
+
         </div>
       </main>
     </div>

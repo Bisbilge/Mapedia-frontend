@@ -1,0 +1,115 @@
+.api-intro-box {
+  margin-bottom: 20px;
+}
+
+.api-intro-box .wiki-box-body p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.api-section-body {
+  padding: 0;
+}
+
+.api-endpoint {
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.api-endpoint:last-child {
+  border-bottom: none;
+}
+
+.api-endpoint-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.api-method {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.api-method-get {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+.api-path {
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.api-desc {
+  font-size: 13px;
+  color: var(--text-light);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.api-params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.api-params-table th {
+  text-align: left;
+  padding: 5px 8px;
+  background: var(--nav-bg);
+  border: 1px solid var(--border);
+  font-weight: normal;
+  color: var(--text-light);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.api-params-table td {
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.api-param-type {
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.api-required {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.api-example {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.api-example-label {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.api-example code {
+  background: var(--accent);
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  word-break: break-all;
+  color: var(--link);
+}

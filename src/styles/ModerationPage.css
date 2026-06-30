@@ -211,7 +211,7 @@
 
 .mod-btn-reject {
   padding: 10px 32px;
-  background: white;
+  background: var(--bg-elevated);
   color: #c00;
   border: 1px solid #c00;
   font-size: 15px;
@@ -221,6 +221,108 @@
 
 .mod-btn-reject:hover { background: #fff3f3; }
 .mod-btn-reject:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.mod-btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* ── Bulk selection ── */
+.mod-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.mod-check-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+}
+
+.mod-bulk-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.mod-list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mod-list-row .mod-list-item {
+  flex: 1;
+  border-bottom: none;
+}
+
+.mod-list-check {
+  margin-top: 14px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ── History tab ── */
+.mod-history {
+  overflow-x: auto;
+  padding: 12px;
+}
+
+.mod-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.mod-history-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--border);
+  background: var(--accent, #f5f5f5);
+}
+
+.mod-history-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.mod-history-table tr:last-child td { border-bottom: none; }
+
+.mod-history-status {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mod-history-approved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.mod-history-rejected {
+  background: #fce8e8;
+  color: #c00;
+}
+
+[data-theme="dark"] .mod-history-approved { background: #1a2e1a; color: #66bb6a; }
+[data-theme="dark"] .mod-history-rejected { background: #2e1a1a; color: #ef5350; }
 
 /* ── Category list page ── */
 .mod-categories-main {
@@ -337,12 +439,12 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-light);
   transition: all 0.15s;
   white-space: nowrap;
 }
 
-.mod-tab:hover { color: #111827; }
+.mod-tab:hover { color: var(--text); }
 
 .mod-tab-active {
   color: #4f46e5;
@@ -364,7 +466,7 @@
 .field-manager-header h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text);
   margin: 0;
 }
 
@@ -394,7 +496,7 @@
   padding: 8px 12px;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
-  color: #6b7280;
+  color: var(--text-light);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
@@ -405,7 +507,7 @@
 .field-table td {
   padding: 10px 12px;
   border-bottom: 1px solid #f3f4f6;
-  color: #374151;
+  color: var(--text);
   vertical-align: middle;
 }
 
@@ -421,7 +523,7 @@
 
 .field-help-text {
   max-width: 180px;
-  color: #9ca3af;
+  color: var(--text-light);
   font-style: italic;
 }
 
@@ -433,7 +535,7 @@
 .field-btn-edit {
   background: #f3f4f6;
   border: 1px solid #e5e7eb;
-  color: #374151;
+  color: var(--text);
   padding: 4px 12px;
   border-radius: 5px;
   font-size: 12px;
@@ -467,7 +569,7 @@
 }
 
 .field-modal {
-  background: white;
+  background: var(--bg-elevated);
   border-radius: 12px;
   width: 100%;
   max-width: 520px;
@@ -487,7 +589,7 @@
 .field-modal-header h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text);
   margin: 0;
 }
 
@@ -495,13 +597,13 @@
   background: none;
   border: none;
   font-size: 18px;
-  color: #9ca3af;
+  color: var(--text-light);
   cursor: pointer;
   line-height: 1;
   padding: 0;
 }
 
-.field-modal-close:hover { color: #374151; }
+.field-modal-close:hover { color: var(--text); }
 
 .field-error {
   background: #fee2e2;
@@ -530,7 +632,7 @@
 .field-form-group label {
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text);
 }
 
 .field-form-group input,
@@ -539,8 +641,8 @@
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 13px;
-  color: #111827;
-  background: white;
+  color: var(--text);
+  background: var(--bg-elevated);
 }
 
 .field-form-group input:focus,
@@ -553,12 +655,12 @@
 .field-form-group input:disabled,
 .field-form-group select:disabled {
   background: #f9fafb;
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
 .field-form-group small {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
 .field-required { color: #dc2626; }
@@ -591,9 +693,9 @@
 }
 
 .field-btn-cancel {
-  background: white;
+  background: var(--bg-elevated);
   border: 1px solid #d1d5db;
-  color: #374151;
+  color: var(--text);
   padding: 8px 18px;
   border-radius: 6px;
   font-size: 13px;
@@ -622,7 +724,7 @@
 
 .venue-count {
   font-size: 13px;
-  color: #9ca3af;
+  color: var(--text-light);
   font-weight: 400;
 }
 
@@ -641,7 +743,7 @@
 }
 
 .venue-manager-link {
-  color: #111827;
+  color: var(--text);
   text-decoration: none;
   font-weight: 500;
 }
@@ -730,11 +832,11 @@
   height: 36px;
   padding: 0 10px;
   border: 1px solid #ddd;
-  background: #fff;
+  background: var(--bg-elevated);
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: var(--text);
   transition: all 0.15s;
 }
 
@@ -761,7 +863,7 @@
 
 .venue-page-dots {
   padding: 0 4px;
-  color: #999;
+  color: var(--text-light);
   font-size: 14px;
   line-height: 36px;
 }
@@ -769,7 +871,7 @@
 .venue-page-info {
   margin-left: 8px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-light);
   white-space: nowrap;
 }
 
@@ -791,7 +893,7 @@
   gap: 6px;
   padding: 6px 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
   font-size: 13px;
   transition: all 0.15s ease;
@@ -840,7 +942,7 @@
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
 }
 
@@ -865,7 +967,7 @@
   gap: 8px;
   padding: 8px 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
   font-size: 13px;
   transition: all 0.15s ease;
@@ -964,7 +1066,7 @@
   height: 18px;
   padding: 0;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
   font-size: 11px;
   color: var(--text-light);
@@ -1005,7 +1107,7 @@
 
 .field-choice-value:disabled {
   background: #f0f0f0;
-  color: #888;
+  color: var(--text-light);
 }
 
 .field-choice-remove {
@@ -1030,7 +1132,7 @@
 
 .field-btn-add-choice {
   padding: 4px 10px;
-  background: white;
+  background: var(--bg-elevated);
   border: 1px dashed var(--border);
   color: var(--link);
   font-size: 12px;
@@ -1087,7 +1189,7 @@
 .venue-page-btn {
   padding: 6px 12px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
   cursor: pointer;
   font-size: 13px;
   font-family: inherit;

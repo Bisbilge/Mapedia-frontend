@@ -1,0 +1,26 @@
+{
+  "name": "Mapedia",
+  "short_name": "Mapedia",
+  "description": "The Free Encyclopedia of Places — community-built open database of real-world venues.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/mapedia.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "1200x630",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["maps", "reference", "travel"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

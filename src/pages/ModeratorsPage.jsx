@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import api from '../api/client'
+import '../styles/wiki.css'
 import '../styles/ModeratorsPage.css'
 
 function ModeratorsPage() {
@@ -81,60 +82,116 @@ function ModeratorsPage() {
   return (
     <div>
       <Navbar />
-      <main className="mods-main">
-        <div className="mods-box">
-          <div className="mods-breadcrumb">
+      <main className="wiki-page" style={{ maxWidth: 1040 }}>
+
+        <div className="wiki-title-bar">
+          <nav className="wiki-breadcrumb">
+            <Link to="/">Mapedia</Link>
+            <span className="wiki-breadcrumb-sep">›</span>
             <Link to="/moderation">Moderation</Link>
-            <span> / </span>
+            <span className="wiki-breadcrumb-sep">›</span>
             <Link to={'/moderation/' + categorySlug}>{categorySlug}</Link>
-            <span> / </span>
-            <span>Manage Moderators</span>
-          </div>
+            <span className="wiki-breadcrumb-sep">›</span>
+            <span>Moderators</span>
+          </nav>
+          <h1>Manage Moderators</h1>
+          <p>Category: <strong>{categorySlug}</strong></p>
+        </div>
 
-          <h1 className="mods-title">Manage Moderators</h1>
-          <p className="mods-desc">Category: <strong>{categorySlug}</strong></p>
+        <div className="wiki-portal">
 
-          {error && <div className="mods-error">{error}</div>}
-          {success && <div className="mods-success">{success}</div>}
+          {/* ── LEFT: Main ── */}
+          <div className="wiki-col-main">
 
-          <div className="mods-section">
-            <h2>Current Moderators</h2>
-            {moderators.length === 0 ? (
-              <p className="mods-empty">No moderators yet.</p>
-            ) : (
-              <ul className="mods-list">
-                {moderators.map(function(mod) {
-                  return (
-                    <li key={mod.id} className="mods-list-item">
-                      <span className="mods-username">{mod.username}</span>
-                      <span className="mods-user-id">ID: {mod.id}</span>
-                      <button
-                        className="mods-remove-btn"
-                        onClick={function() { handleRemove(mod.id, mod.username) }}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </div>
+            {error && <div className="mods-error" style={{ marginBottom: 12 }}>{error}</div>}
+            {success && <div className="mods-success" style={{ marginBottom: 12 }}>{success}</div>}
 
-          <div className="mods-section">
-            <h2>Add Moderator</h2>
-            <p className="mods-hint">Enter the user ID of the person you want to add.</p>
-            <div className="mods-add-row">
-              <input
-                type="number"
-                placeholder="User ID"
-                value={newUserId}
-                onChange={function(e) { setNewUserId(e.target.value) }}
-                className="mods-input"
-              />
-              <button onClick={handleAdd} className="mods-add-btn">Add</button>
+            {/* Current Moderators */}
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>Current Moderators</h2>
+              </div>
+              <div className="wiki-box-body">
+                {moderators.length === 0 ? (
+                  <p className="mods-empty">No moderators yet.</p>
+                ) : (
+                  <ul className="mods-list">
+                    {moderators.map(function(mod) {
+                      return (
+                        <li key={mod.id} className="mods-list-item">
+                          <span className="mods-username">{mod.username}</span>
+                          <span className="mods-user-id">ID: {mod.id}</span>
+                          <button
+                            className="mods-remove-btn"
+                            onClick={function() { handleRemove(mod.id, mod.username) }}
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
             </div>
+
+            {/* Add Moderator */}
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>Add Moderator</h2>
+              </div>
+              <div className="wiki-box-body">
+                <p className="mods-hint" style={{ marginBottom: 12 }}>Enter the user ID of the person you want to add.</p>
+                <div className="mods-add-row">
+                  <input
+                    type="number"
+                    placeholder="User ID"
+                    value={newUserId}
+                    onChange={function(e) { setNewUserId(e.target.value) }}
+                    className="mods-input"
+                  />
+                  <button onClick={handleAdd} className="mods-add-btn">Add</button>
+                </div>
+              </div>
+            </div>
+
           </div>
+
+          {/* ── RIGHT: Sidebar ── */}
+          <aside className="wiki-col-side">
+
+            <div className="wiki-box">
+              <div className="wiki-box-header wiki-box-header-accent">
+                <h2>Actions</h2>
+              </div>
+              <div className="wiki-side-actions">
+                <Link to={'/moderation/' + categorySlug} className="wiki-btn-secondary">← Back to Moderation</Link>
+                <Link to={'/category/' + categorySlug} className="wiki-btn-secondary">View Category</Link>
+              </div>
+            </div>
+
+            <div className="wiki-infobox">
+              <div className="wiki-infobox-title">About Moderators</div>
+              <table>
+                <tbody>
+                  <tr><td>Category</td><td>{categorySlug}</td></tr>
+                  <tr><td>Total mods</td><td>{moderators.length}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>Note</h2>
+              </div>
+              <div className="wiki-box-body">
+                <p style={{ fontSize: 13, color: 'var(--text-light)', margin: 0 }}>
+                  Moderators can approve and reject contributions. Only the category owner can add or remove moderators.
+                </p>
+              </div>
+            </div>
+
+          </aside>
         </div>
       </main>
     </div>

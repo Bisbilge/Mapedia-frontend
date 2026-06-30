@@ -3,11 +3,17 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useRecentlyViewed } from '../hooks/useRecentlyViewed'
+import { useFavorites } from '../hooks/useFavorites'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import { Helmet } from 'react-helmet-async' 
+import { Helmet } from 'react-helmet-async'
+import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
+import StarRating from '../components/StarRating'
+import { SkeletonPage } from '../components/Skeleton'
 import api from '../api/client'
 import 'leaflet/dist/leaflet.css'
+import '../styles/wiki.css'
 import '../styles/VenuePage.css'
 import L from 'leaflet'
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -21,9 +27,6 @@ const DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
-// ─────────────────────────────────────────────
-// YARDIMCI: Alan/değer gösterimi
-// ─────────────────────────────────────────────
 function FieldValueDisplay({ fv }) {
   if (fv.field_type === 'boolean') {
     const isYes = fv.display_value === 'Yes' || fv.value === 'True' || fv.value === 'true' || fv.value === true
@@ -35,31 +38,6 @@ function FieldValueDisplay({ fv }) {
     return <a href={fv.value} target="_blank" rel="noopener noreferrer">{fv.value}</a>
   }
   return <span>{fv.display_value || fv.value}</span>
-}
-
-// ─────────────────────────────────────────────
-// RATING BİLEŞENLERİ
-// ─────────────────────────────────────────────
-function StarRating({ rating, size = 'medium', interactive = false, onRate = null }) {
-  const [hoverRating, setHoverRating] = useState(0)
-  const sizeClass = size === 'small' ? 'stars-small' : size === 'large' ? 'stars-large' : ''
-  const handleClick = (star) => { if (interactive && onRate) onRate(star) }
-  const displayRating = hoverRating || rating || 0
-  return (
-    <div
-      className={`star-rating ${sizeClass} ${interactive ? 'interactive' : ''}`}
-      onMouseLeave={() => interactive && setHoverRating(0)}
-    >
-      {[1, 2, 3, 4, 5].map(star => (
-        <span
-          key={star}
-          className={`star ${star <= displayRating ? 'filled' : ''}`}
-          onClick={() => handleClick(star)}
-          onMouseEnter={() => interactive && setHoverRating(star)}
-        >★</span>
-      ))}
-    </div>
-  )
 }
 
 function RatingBreakdown({ breakdown, totalCount }) {
@@ -96,8 +74,10 @@ function RatingForm({ venueSlug, userRating, onRatingSubmit }) {
     try {
       const res = await api.post(`/venues/${venueSlug}/rate/`, { score, comment })
       onRatingSubmit(res.data); setComment('')
+      toast.success(userRating ? 'Rating updated!' : 'Rating submitted!')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to submit rating')
+      const msg = err.response?.data?.detail || 'Failed to submit rating'
+      setError(msg); toast.error(msg)
     } finally { setLoading(false) }
   }
 
@@ -107,8 +87,10 @@ function RatingForm({ venueSlug, userRating, onRatingSubmit }) {
     try {
       const res = await api.delete(`/venues/${venueSlug}/rate/delete/`)
       onRatingSubmit(res.data); setScore(0); setComment('')
+      toast.success('Rating deleted.')
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete rating')
+      const msg = err.response?.data?.detail || 'Failed to delete rating'
+      setError(msg); toast.error(msg)
     } finally { setLoading(false) }
   }
 
@@ -138,9 +120,7 @@ function RatingForm({ venueSlug, userRating, onRatingSubmit }) {
           {loading ? 'Submitting...' : (userRating ? 'Update Rating' : 'Submit Rating')}
         </button>
         {userRating && (
-          <button onClick={handleDelete} disabled={loading} className="btn-report">
-            Delete Rating
-          </button>
+          <button onClick={handleDelete} disabled={loading} className="btn-report">Delete Rating</button>
         )}
       </div>
     </div>
@@ -171,41 +151,25 @@ function RatingsList({ ratings }) {
   )
 }
 
-// ─────────────────────────────────────────────
-// SEO 1: PROGRAMMATIC VENUE DESCRIPTION
-// Sadece güvenilir yapısal veri: isim + kategori + konum + rating.
-// Field label'larına dokunulmaz — kullanıcı tarafından girildiği için güvenilmez.
-// ─────────────────────────────────────────────
 function VenueDescription({ venue }) {
   const city = venue.city || ''
   const country = venue.country || ''
   const location = [city, country].filter(Boolean).join(', ')
-
-  // Kategori sayısına göre doğal dil: "a Cafe", "a Cafe and Bar", "a Cafe, Bar, and Museum"
   const cats = venue.categories?.map(c => c.category_name) || []
   let categoryPhrase = ''
-  if (cats.length === 1) {
-    categoryPhrase = cats[0]
-  } else if (cats.length === 2) {
-    categoryPhrase = `${cats[0]} and ${cats[1]}`
-  } else if (cats.length >= 3) {
-    categoryPhrase = `${cats.slice(0, -1).join(', ')}, and ${cats[cats.length - 1]}`
-  }
+  if (cats.length === 1) categoryPhrase = cats[0]
+  else if (cats.length === 2) categoryPhrase = `${cats[0]} and ${cats[1]}`
+  else if (cats.length >= 3) categoryPhrase = `${cats.slice(0, -1).join(', ')}, and ${cats[cats.length - 1]}`
 
   const ratingText = venue.average_rating && venue.rating_count > 0
     ? ` It has a ${venue.average_rating}/5 rating from ${venue.rating_count} ${venue.rating_count === 1 ? 'review' : 'reviews'} on Mapedia.`
     : ''
 
   if (!categoryPhrase && !location) return null
-
   let description = venue.name
-  if (categoryPhrase && location) {
-    description += ` is a ${categoryPhrase} in ${location}.`
-  } else if (categoryPhrase) {
-    description += ` is a ${categoryPhrase}.`
-  } else {
-    description += ` is located in ${location}.`
-  }
+  if (categoryPhrase && location) description += ` is a ${categoryPhrase} in ${location}.`
+  else if (categoryPhrase) description += ` is a ${categoryPhrase}.`
+  else description += ` is located in ${location}.`
 
   return (
     <div className="venue-description" itemProp="description">
@@ -214,24 +178,12 @@ function VenueDescription({ venue }) {
   )
 }
 
-
-// ─────────────────────────────────────────────
-// SEO 2: NEARBY VENUES (İÇ LİNKLEME — YER BAZLI)
-// Aynı şehir + kategori → coğrafi küme oluşturur.
-// "Cafes in Istanbul" → tüm kafeler birbirine bağlanır.
-// Backend: /venues/{slug}/ → nearby_venues alanı
-// ─────────────────────────────────────────────
 function NearbyVenues({ venues, city, categoryName }) {
   if (!venues || venues.length === 0) return null
-
   return (
     <section className="venue-nearby" aria-label={`Other ${categoryName || 'venues'} near ${city || 'this location'}`}>
       <h2 className="nearby-title">
-        {categoryName && city
-          ? `Other ${categoryName} venues in ${city}`
-          : city
-            ? `More venues in ${city}`
-            : `Similar nearby venues`}
+        {categoryName && city ? `Other ${categoryName} venues in ${city}` : city ? `More venues in ${city}` : `Similar nearby venues`}
       </h2>
       <ul className="nearby-list">
         {venues.map(v => (
@@ -239,9 +191,7 @@ function NearbyVenues({ venues, city, categoryName }) {
             <Link to={`/venue/${v.slug}`} className="nearby-link">
               <span className="nearby-name">{v.name}</span>
               {v.city && <span className="nearby-city">{v.city}</span>}
-              {v.average_rating > 0 && (
-                <span className="nearby-rating">★ {v.average_rating}</span>
-              )}
+              {v.average_rating > 0 && <span className="nearby-rating">★ {v.average_rating}</span>}
             </Link>
           </li>
         ))}
@@ -250,15 +200,8 @@ function NearbyVenues({ venues, city, categoryName }) {
   )
 }
 
-// ─────────────────────────────────────────────
-// SEO 3: RELATED VENUES (İÇ LİNKLEME — KATEGORİ BAZLI)
-// Aynı kategori → tematik küme oluşturur.
-// "Museums in Turkey" gibi kümeleri örümcek ağı gibi bağlar.
-// Backend: /venues/{slug}/ → related_venues alanı
-// ─────────────────────────────────────────────
 function RelatedVenues({ venues, categoryName }) {
   if (!venues || venues.length === 0) return null
-
   return (
     <section className="venue-related" aria-label={`Related ${categoryName || 'venues'}`}>
       <h2 className="related-title">
@@ -275,36 +218,23 @@ function RelatedVenues({ venues, categoryName }) {
           </Link>
         ))}
       </div>
-      <Link
-        to={`/category/${venues[0]?.primary_category_slug || ''}`}
-        className="related-all-link"
-      >
+      <Link to={`/category/${venues[0]?.primary_category_slug || ''}`} className="related-all-link">
         Browse all {categoryName} venues →
       </Link>
     </section>
   )
 }
 
-// ─────────────────────────────────────────────
-// SEO 4: CATEGORY CONTEXT BLOCK
-// Kategori hakkında kısa açıklama + link.
-// "What is a Vegan Restaurant?" gibi LLM snippet hedefleri.
-// Backend: /categories/{slug}/ → description alanı (opsiyonel)
-// ─────────────────────────────────────────────
 function CategoryContext({ categories }) {
   if (!categories || categories.length === 0) return null
-
-  // Sadece description'ı olan kategorileri göster
   const catsWithDesc = categories.filter(c => c.category_description)
   if (catsWithDesc.length === 0) return null
-
   return (
     <aside className="category-context">
       {catsWithDesc.map(cat => (
         <div key={cat.category_slug} className="category-context-item">
           <h3 className="category-context-title">
-            About{' '}
-            <Link to={`/category/${cat.category_slug}`}>{cat.category_name}</Link>
+            About <Link to={`/category/${cat.category_slug}`}>{cat.category_name}</Link>
           </h3>
           <p className="category-context-desc">{cat.category_description}</p>
         </div>
@@ -313,115 +243,45 @@ function CategoryContext({ categories }) {
   )
 }
 
-// ─────────────────────────────────────────────
-// SEO 5: BREADCRUMB SCHEMA (JSON-LD)
-// Google'a sayfa hiyerarşisini bildirir.
-// Arama sonuçlarında "Mapedia > Kafe > Venue adı" şeklinde görünür.
-// ─────────────────────────────────────────────
 function buildBreadcrumbSchema(venue, venueSlug) {
-  const items = [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "Mapedia",
-      "item": "https://mapedia.org"
-    }
-  ]
-
+  const items = [{ "@type": "ListItem", "position": 1, "name": "Mapedia", "item": "https://mapedia.org" }]
   if (venue.city) {
-    items.push({
-      "@type": "ListItem",
-      "position": 2,
-      "name": venue.city,
-      "item": `https://mapedia.org/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`
-    })
+    items.push({ "@type": "ListItem", "position": 2, "name": venue.city, "item": `https://mapedia.org/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}` })
   }
-
   const primaryCat = venue.categories?.[0]
   if (primaryCat) {
-    items.push({
-      "@type": "ListItem",
-      "position": venue.city ? 3 : 2,
-      "name": primaryCat.category_name,
-      "item": `https://mapedia.org/category/${primaryCat.category_slug}`
-    })
+    items.push({ "@type": "ListItem", "position": venue.city ? 3 : 2, "name": primaryCat.category_name, "item": `https://mapedia.org/category/${primaryCat.category_slug}` })
   }
-
-  items.push({
-    "@type": "ListItem",
-    "position": items.length + 1,
-    "name": venue.name,
-    "item": `https://mapedia.org/venue/${venueSlug}`
-  })
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": items
-  }
+  items.push({ "@type": "ListItem", "position": items.length + 1, "name": venue.name, "item": `https://mapedia.org/venue/${venueSlug}` })
+  return { "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items }
 }
 
-// ─────────────────────────────────────────────
-// SEO 6: FAQ SCHEMA
-// Sık sorulan sorulardan snippet üretir.
-// LLM ve featured snippet hedeflemesi için.
-// ─────────────────────────────────────────────
 function buildFAQSchema(venue) {
   const faqs = []
-  const categoryNames = venue.categories?.map(c => c.category_name).join(' ve ')
+  const categoryNames = venue.categories?.map(c => c.category_name).join(' and ')
   const location = [venue.city, venue.country].filter(Boolean).join(', ')
-
   if (location) {
-    faqs.push({
-      "@type": "Question",
-      "name": `Where is ${venue.name} located?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `${venue.name} is located in ${location}.${venue.latitude ? ` Coordinates: ${venue.latitude}, ${venue.longitude}.` : ''}`
-      }
-    })
+    faqs.push({ "@type": "Question", "name": `Where is ${venue.name} located?`, "acceptedAnswer": { "@type": "Answer", "text": `${venue.name} is located in ${location}.${venue.latitude ? ` Coordinates: ${venue.latitude}, ${venue.longitude}.` : ''}` } })
   }
-
   if (categoryNames) {
-    faqs.push({
-      "@type": "Question",
-      "name": `What type of venue is ${venue.name}?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `${venue.name} is categorized as ${categoryNames} on Mapedia.`
-      }
-    })
+    faqs.push({ "@type": "Question", "name": `What type of venue is ${venue.name}?`, "acceptedAnswer": { "@type": "Answer", "text": `${venue.name} is categorized as ${categoryNames} on Mapedia.` } })
   }
-
   if (venue.average_rating && venue.rating_count > 0) {
-    faqs.push({
-      "@type": "Question",
-      "name": `What is the rating of ${venue.name}?`,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": `${venue.name} has an average rating of ${venue.average_rating} out of 5, based on ${venue.rating_count} reviews on Mapedia.`
-      }
-    })
+    faqs.push({ "@type": "Question", "name": `What is the rating of ${venue.name}?`, "acceptedAnswer": { "@type": "Answer", "text": `${venue.name} has an average rating of ${venue.average_rating} out of 5, based on ${venue.rating_count} reviews on Mapedia.` } })
   }
-
   if (faqs.length === 0) return null
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs
-  }
+  return { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faqs }
 }
 
-// ─────────────────────────────────────────────
-// ANA BİLEŞEN
-// ─────────────────────────────────────────────
 function VenuePage() {
   const { venueSlug } = useParams()
   const navigate = useNavigate()
   const [venue, setVenue] = useState(null)
   const [loading, setLoading] = useState(true)
   const [reportOpen, setReportOpen] = useState(false)
+  const [embedOpen, setEmbedOpen] = useState(false)
+  const { add: addRecentlyViewed } = useRecentlyViewed()
+  const { toggle: toggleFavorite, isFavorite } = useFavorites()
   const [reportReason, setReportReason] = useState('')
   const [reportDesc, setReportDesc] = useState('')
   const [reportSent, setReportSent] = useState(false)
@@ -447,6 +307,10 @@ function VenuePage() {
 
   useEffect(() => { fetchVenue() }, [fetchVenue])
 
+  useEffect(() => {
+    if (venue) addRecentlyViewed(venue)
+  }, [venue?.slug]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleRatingSubmit = (data) => {
     setVenue(prev => ({
       ...prev,
@@ -460,104 +324,72 @@ function VenuePage() {
   const submitReport = () => {
     if (!venue) return
     api.post('/reports/', { venue: venue.id, reason: reportReason, description: reportDesc })
-      .then(() => { setReportSent(true); setReportOpen(false); setReportReason(''); setReportDesc('') })
-      .catch(err => console.error('Report failed:', err))
+      .then(() => {
+        setReportSent(true); setReportOpen(false); setReportReason(''); setReportDesc('')
+        toast.success('Report submitted. Thank you!')
+      })
+      .catch(() => toast.error('Failed to submit report.'))
   }
 
-  if (loading) return <div><Navbar /><div className="venue-loading">Loading…</div></div>
+  if (loading) return <div><Navbar /><SkeletonPage /></div>
 
   if (!venue) return (
     <div>
       <Navbar />
-      <div className="venue-loading">
-        <h2>Venue not found</h2>
-        <p>The link might be broken or the venue is no longer active.</p>
-        <Link to="/" className="btn-edit" style={{ marginTop: 16, display: 'inline-block' }}>Back to Home</Link>
-      </div>
+      <main className="wiki-page">
+        <div style={{ padding: '48px 0', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Linux Libertine', serif", fontWeight: 'normal' }}>Venue not found</h2>
+          <p style={{ color: 'var(--text-light)', marginTop: 8 }}>The link might be broken or the venue is no longer active.</p>
+          <Link to="/" className="wiki-btn-secondary" style={{ display: 'inline-block', marginTop: 16, width: 'auto' }}>Back to Home</Link>
+        </div>
+      </main>
     </div>
   )
 
   const primaryCat = venue.categories?.[0]
   const pageTitle = `${venue.name}${venue.city ? ` — ${venue.city}` : ''}${primaryCat ? ` | ${primaryCat.category_name}` : ''} | Mapedia`
-
-  // Programmatic meta description: keyword-rich, 150-160 karakter hedefi
   const categoryNames = venue.categories?.map(c => c.category_name).join(', ')
   const location = [venue.city, venue.country].filter(Boolean).join(', ')
   const ratingSnippet = venue.average_rating && venue.rating_count > 0
-    ? ` Rated ${venue.average_rating}/5 (${venue.rating_count} reviews).`
-    : ''
+    ? ` Rated ${venue.average_rating}/5 (${venue.rating_count} reviews).` : ''
   const pageDesc = `${venue.name} is a ${categoryNames || 'venue'}${location ? ` in ${location}` : ''}.${ratingSnippet} View location, features and reviews on Mapedia.`
 
-  // Schema: LocalBusiness type mapping
   const getGoogleSchemaType = (categories) => {
-    if (!categories || categories.length === 0) return "LocalBusiness"
+    if (!categories || categories.length === 0) return 'LocalBusiness'
     const s = categories[0].category_slug.toLowerCase()
     const typeMap = {
-      // English slugs
       'restaurant': 'Restaurant', 'restaurants': 'Restaurant',
       'cafe': 'CafeOrCoffeeShop', 'cafes': 'CafeOrCoffeeShop',
-      'coffee-shop': 'CafeOrCoffeeShop', 'coffee-shops': 'CafeOrCoffeeShop',
-      'laptop-friendly-cafes': 'CafeOrCoffeeShop',
+      'coffee-shop': 'CafeOrCoffeeShop', 'laptop-friendly-cafes': 'CafeOrCoffeeShop',
       'museum': 'Museum', 'museums': 'Museum',
-      'historic-site': 'TouristAttraction', 'historic-sites': 'TouristAttraction',
-      'tourist-attraction': 'TouristAttraction',
+      'historic-site': 'TouristAttraction', 'tourist-attraction': 'TouristAttraction',
       'park': 'Park', 'parks': 'Park',
-      'hotel': 'LodgingBusiness', 'hotels': 'LodgingBusiness',
-      'hostel': 'LodgingBusiness', 'hostels': 'LodgingBusiness',
+      'hotel': 'LodgingBusiness', 'hostel': 'LodgingBusiness',
       'bar': 'BarOrPub', 'bars': 'BarOrPub',
       'library': 'Library', 'libraries': 'Library',
       'hospital': 'Hospital', 'pharmacy': 'Pharmacy',
       'free-toilets': 'LocalBusiness', 'water-fountains': 'LocalBusiness',
-      // Turkish slugs (legacy)
-      'vegan': 'Restaurant', 'restoran': 'Restaurant',
-      'kafe': 'CafeOrCoffeeShop', 'muze': 'Museum',
-      'tarihi-yer': 'TouristAttraction', 'otel': 'LodgingBusiness'
     }
-    return typeMap[s] || "LocalBusiness"
+    return typeMap[s] || 'LocalBusiness'
   }
 
   const schemaData = {
-    "@context": "https://schema.org",
-    "@type": getGoogleSchemaType(venue.categories),
-    "name": venue.name,
-    "description": pageDesc,
-    "url": `https://mapedia.org/venue/${venueSlug}`,
-    // Mekan görseli varsa ekle, yoksa site logosu
-    "image": venue.image || "https://mapedia.org/mapedia.svg",
+    '@context': 'https://schema.org',
+    '@type': getGoogleSchemaType(venue.categories),
+    'name': venue.name,
+    'description': pageDesc,
+    'url': `https://mapedia.org/venue/${venueSlug}`,
+    'image': venue.image || 'https://mapedia.org/mapedia.svg',
     ...(venue.latitude && venue.longitude && {
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": parseFloat(venue.latitude),
-        "longitude": parseFloat(venue.longitude)
-      },
-      // hasMap: Google Maps ve OSM linkleri
-      "hasMap": [
+      'geo': { '@type': 'GeoCoordinates', 'latitude': parseFloat(venue.latitude), 'longitude': parseFloat(venue.longitude) },
+      'hasMap': [
         `https://www.openstreetmap.org/?mlat=${venue.latitude}&mlon=${venue.longitude}&zoom=16`,
         `https://maps.google.com/?q=${venue.latitude},${venue.longitude}`
       ]
     }),
-    ...(venue.city || venue.country ? {
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": venue.city,
-        "addressCountry": venue.country || "TR"
-      }
-    } : {}),
-    ...(venue.average_rating && venue.rating_count > 0 ? {
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": venue.average_rating,
-        "reviewCount": venue.rating_count,
-        "bestRating": "5",
-        "worstRating": "1"
-      }
-    } : {}),
-    // sameAs: OSM kaynağı varsa ekle (AI/LLM entity linking için kritik)
-    ...(venue.osm_id ? {
-      "sameAs": [
-        `https://www.openstreetmap.org/${venue.osm_type || 'node'}/${venue.osm_id}`
-      ]
-    } : {})
+    ...(venue.city || venue.country ? { 'address': { '@type': 'PostalAddress', 'addressLocality': venue.city, 'addressCountry': venue.country || 'TR' } } : {}),
+    ...(venue.average_rating && venue.rating_count > 0 ? { 'aggregateRating': { '@type': 'AggregateRating', 'ratingValue': venue.average_rating, 'reviewCount': venue.rating_count, 'bestRating': '5', 'worstRating': '1' } } : {}),
+    ...(venue.osm_id ? { 'sameAs': [`https://www.openstreetmap.org/${venue.osm_type || 'node'}/${venue.osm_id}`] } : {})
   }
 
   const breadcrumbSchema = buildBreadcrumbSchema(venue, venueSlug)
@@ -569,197 +401,290 @@ function VenuePage() {
         <title>{pageTitle}</title>
         <meta name="description" content={pageDesc} />
         <link rel="canonical" href={`https://mapedia.org/venue/${venueSlug}`} />
-
-        {/* Open Graph */}
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://mapedia.org/venue/${venueSlug}`} />
         <meta property="og:type" content="place" />
-        <meta property="og:image" content={venue.image || "https://mapedia.org/og-image.png"} />
-
-        {/* Twitter Card */}
+        <meta property="og:image" content={venue.image || 'https://mapedia.org/og-image.png'} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
-        <meta name="twitter:image" content={venue.image || "https://mapedia.org/og-image.png"} />
-
-        {/* LocalBusiness Schema */}
-        <script type="application/ld+json">
-          {JSON.stringify(schemaData)}
-        </script>
-
-        {/* Breadcrumb Schema */}
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-
-        {/* FAQ Schema (sadece yeterli veri varsa) */}
-        {faqSchema && (
-          <script type="application/ld+json">
-            {JSON.stringify(faqSchema)}
-          </script>
-        )}
+        <meta name="twitter:image" content={venue.image || 'https://mapedia.org/og-image.png'} />
+        <script type="application/ld+json">{JSON.stringify(schemaData)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
       </Helmet>
 
       <Navbar />
 
-      {/* itemScope: Sayfanın tamamı semantic HTML ile işaretlendi */}
       <main
-        className="venue-main"
+        className="wiki-page"
+        style={{ maxWidth: 1060 }}
         itemScope
         itemType={`https://schema.org/${getGoogleSchemaType(venue.categories)}`}
       >
-        <div className="venue-layout">
-          <div className="venue-content">
-
-            {/* ── BREADCRUMB ── */}
-            <nav className="venue-breadcrumb" aria-label="Breadcrumb">
-              <Link to="/">Mapedia</Link>
-              <span className="venue-breadcrumb-sep" aria-hidden="true">›</span>
-              {venue.city && (
-                <>
-                  <Link to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}>
-                    {venue.city}
-                  </Link>
-                  <span className="venue-breadcrumb-sep" aria-hidden="true">›</span>
-                </>
-              )}
-              {primaryCat && (
-                <>
-                  <Link to={`/category/${primaryCat.category_slug}`}>{primaryCat.category_name}</Link>
-                  <span className="venue-breadcrumb-sep" aria-hidden="true">›</span>
-                </>
-              )}
-              <span aria-current="page">{venue.name}</span>
-            </nav>
-
-            {/* ── BAŞLIK ── */}
-            <h1 className="venue-title" itemProp="name">{venue.name}</h1>
-
-            {/* ── PROGRAMMATIC AÇIKLAMA (SEO 1) ── */}
-            <VenueDescription venue={venue} />
-
-            {/* ── RATING ÖZET ── */}
-            {(venue.average_rating || venue.rating_count > 0) && (
-              <div className="venue-rating-summary" itemProp="aggregateRating" itemScope itemType="https://schema.org/AggregateRating">
-                <meta itemProp="ratingValue" content={venue.average_rating} />
-                <meta itemProp="reviewCount" content={venue.rating_count} />
-                <StarRating rating={Math.round(venue.average_rating)} />
-                <span className="rating-value">{venue.average_rating}</span>
-                <span className="rating-count">({venue.rating_count} {venue.rating_count === 1 ? 'review' : 'reviews'})</span>
-              </div>
+        {/* ── Title bar ── */}
+        <div className="wiki-title-bar">
+          <nav className="wiki-breadcrumb" aria-label="Breadcrumb">
+            <Link to="/">Mapedia</Link>
+            <span className="wiki-breadcrumb-sep">›</span>
+            {venue.city && (
+              <>
+                <Link to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}>{venue.city}</Link>
+                <span className="wiki-breadcrumb-sep">›</span>
+              </>
             )}
+            {primaryCat && (
+              <>
+                <Link to={`/category/${primaryCat.category_slug}`}>{primaryCat.category_name}</Link>
+                <span className="wiki-breadcrumb-sep">›</span>
+              </>
+            )}
+            <span aria-current="page">{venue.name}</span>
+          </nav>
 
-            {/* ── META ETIKETLER ── */}
-            <div className="venue-meta-row">
-              {venue.city && (
-                <Link
-                  to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="venue-tag"
-                  itemProp="address"
-                  itemScope
-                  itemType="https://schema.org/PostalAddress"
-                >
-                  <meta itemProp="addressLocality" content={venue.city} />
-                  📍 {venue.city}{venue.country ? `, ${venue.country}` : ''}
-                </Link>
-              )}
-              {venue.categories?.map(cat => (
-                <Link key={cat.category_slug} to={`/category/${cat.category_slug}`} className="venue-tag">
-                  {cat.category_name}
-                </Link>
-              ))}
+          <h1 className="venue-title" itemProp="name">{venue.name}</h1>
+
+          <VenueDescription venue={venue} />
+
+          {(venue.average_rating || venue.rating_count > 0) && (
+            <div
+              className="venue-rating-summary"
+              itemProp="aggregateRating"
+              itemScope
+              itemType="https://schema.org/AggregateRating"
+            >
+              <meta itemProp="ratingValue" content={venue.average_rating} />
+              <meta itemProp="reviewCount" content={venue.rating_count} />
+              <StarRating rating={Math.round(venue.average_rating)} />
+              <span className="rating-value">{venue.average_rating}</span>
+              <span className="rating-count">({venue.rating_count} {venue.rating_count === 1 ? 'review' : 'reviews'})</span>
             </div>
+          )}
 
-            {/* ── ALAN DEĞERLERİ ── */}
+          <div className="venue-meta-row">
+            {venue.city && (
+              <Link
+                to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}
+                className="venue-tag"
+                itemProp="address"
+                itemScope
+                itemType="https://schema.org/PostalAddress"
+              >
+                <meta itemProp="addressLocality" content={venue.city} />
+                📍 {venue.city}{venue.country ? `, ${venue.country}` : ''}
+              </Link>
+            )}
+            {venue.categories?.map(cat => (
+              <Link key={cat.category_slug} to={`/category/${cat.category_slug}`} className="venue-tag">
+                {cat.category_name}
+              </Link>
+            ))}
+          </div>
+
+          <div className="venue-action-bar">
+            <button
+              className="venue-share-btn"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href)
+                  .then(() => toast.success('Link copied!'))
+                  .catch(() => toast.error('Could not copy link'))
+              }}
+            >
+              ⎘ Copy Link
+            </button>
+            <a
+              className="venue-share-btn venue-share-x"
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${venue.name}${venue.city ? ` — ${venue.city}` : ''} 📍`)}&url=${encodeURIComponent(window.location.href)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              𝕏 Share
+            </a>
+            <button
+              className={`venue-fav-btn ${isFavorite(venue.slug) ? 'venue-fav-btn-active' : ''}`}
+              onClick={() => toggleFavorite(venue)}
+            >
+              {isFavorite(venue.slug) ? '★ Saved' : '☆ Save'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Two-column layout ── */}
+        <div className="wiki-portal">
+
+          {/* ── LEFT: Main content ── */}
+          <div className="wiki-col-main">
+
+            {/* Field values per category */}
             {venue.categories?.map(cat => (
               cat.field_values?.length > 0 && (
-                <div key={cat.category_slug} className="venue-fields">
-                  <h2>{cat.category_name}</h2>
-                  <table className="fields-table">
-                    <tbody>
-                      {cat.field_values.map(fv => (
-                        <tr key={fv.id}>
-                          <td className="field-label">{fv.field_label}</td>
-                          <td className="field-value"><FieldValueDisplay fv={fv} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div key={cat.category_slug} className="wiki-box">
+                  <div className="wiki-box-header">
+                    <h2>{cat.category_name}</h2>
+                    <Link to={`/category/${cat.category_slug}`} style={{ fontSize: 12, color: 'var(--link)' }}>
+                      View category →
+                    </Link>
+                  </div>
+                  <div className="wiki-box-body" style={{ padding: 0 }}>
+                    <table className="fields-table">
+                      <tbody>
+                        {cat.field_values.map(fv => (
+                          <tr key={fv.id}>
+                            <td className="field-label">{fv.field_label}</td>
+                            <td className="field-value"><FieldValueDisplay fv={fv} /></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )
             ))}
 
-            {/* ── KATEGORİ BAĞLAM BLOĞU (SEO 4) ── */}
+            {/* Category context (SEO) */}
             <CategoryContext categories={venue.categories} />
 
-            {/* ── RATING SECTION ── */}
-            <div className="venue-rating-section">
-              <h2>Ratings & Reviews</h2>
-              <div className="rating-overview">
-                <div className="rating-big">
-                  <span className="rating-big-number">{venue.average_rating || '—'}</span>
-                  <StarRating rating={Math.round(venue.average_rating || 0)} />
-                  <span className="rating-total">{venue.rating_count} reviews</span>
-                </div>
-                <RatingBreakdown breakdown={venue.rating_breakdown} totalCount={venue.rating_count} />
+            {/* Ratings & Reviews */}
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>Ratings &amp; Reviews</h2>
+                {venue.rating_count > 0 && (
+                  <span style={{ fontSize: 13, color: 'var(--text-light)' }}>
+                    {venue.average_rating} ★ · {venue.rating_count} {venue.rating_count === 1 ? 'review' : 'reviews'}
+                  </span>
+                )}
               </div>
-              <RatingForm venueSlug={venueSlug} userRating={venue.user_rating} onRatingSubmit={handleRatingSubmit} />
-              <RatingsList ratings={venue.recent_ratings} />
-              {venue.rating_count > 5 && (
-                <Link to={`/venue/${venueSlug}/reviews`} className="btn-edit" style={{ marginTop: 16 }}>
-                  View all {venue.rating_count} reviews →
-                </Link>
-              )}
+              <div className="wiki-box-body">
+                <div className="rating-overview">
+                  <div className="rating-big">
+                    <span className="rating-big-number">{venue.average_rating || '—'}</span>
+                    <StarRating rating={Math.round(venue.average_rating || 0)} />
+                    <span className="rating-total">{venue.rating_count} reviews</span>
+                  </div>
+                  <RatingBreakdown breakdown={venue.rating_breakdown} totalCount={venue.rating_count} />
+                </div>
+                <RatingForm venueSlug={venueSlug} userRating={venue.user_rating} onRatingSubmit={handleRatingSubmit} />
+                <RatingsList ratings={venue.recent_ratings} />
+                {venue.rating_count > 5 && (
+                  <Link to={`/venue/${venueSlug}/reviews`} className="btn-edit" style={{ marginTop: 16, display: 'inline-block' }}>
+                    View all {venue.rating_count} reviews →
+                  </Link>
+                )}
+              </div>
             </div>
 
-            {/* ── YAKINDAKI MEKÂNLAR (SEO 2 — YER BAZLI İÇ LİNK) ── */}
-            <NearbyVenues
-              venues={venue.nearby_venues}
-              city={venue.city}
-              categoryName={primaryCat?.category_name}
-            />
-
-            {/* ── İLGİLİ MEKÂNLAR (SEO 3 — KATEGORİ BAZLI İÇ LİNK) ── */}
-            <RelatedVenues
-              venues={venue.related_venues}
-              categoryName={primaryCat?.category_name}
-            />
-
-            {/* ── ACTIONS ── */}
-            <div className="venue-actions">
-              <Link to={`/venue/${venueSlug}/edit`} className="btn-edit">Edit</Link>
-              <button className="btn-edit" onClick={() => navigate(`/venue/${venueSlug}/add-category`)}>
-                + Add Category
-              </button>
-              <button className="btn-report" onClick={() => setReportOpen(!reportOpen)}>
-                {reportOpen ? 'Cancel' : 'Report an issue'}
-              </button>
-              {reportSent && <span className="report-sent">✓ Report sent, thank you.</span>}
-            </div>
-
-            {reportOpen && (
-              <div className="report-form">
-                <h3>Report an Issue</h3>
-                <select value={reportReason} onChange={e => setReportReason(e.target.value)} className="filter-select">
-                  <option value="">Select reason…</option>
-                  <option value="closed">Venue Closed / Not Found</option>
-                  <option value="wrong_location">Wrong Location on Map</option>
-                  <option value="wrong_info">Incorrect Information</option>
-                  <option value="inappropriate">Inappropriate Content</option>
-                  <option value="duplicate">Duplicate Entry</option>
-                  <option value="other">Other</option>
-                </select>
-                <textarea
-                  placeholder="Additional details (optional)"
-                  value={reportDesc}
-                  onChange={e => setReportDesc(e.target.value)}
-                  className="report-textarea"
-                />
-                <button onClick={submitReport} disabled={!reportReason} className="btn-apply">Submit Report</button>
+            {/* Nearby venues */}
+            {venue.nearby_venues?.length > 0 && (
+              <div className="wiki-box">
+                <div className="wiki-box-header">
+                  <h2>
+                    {primaryCat?.category_name && venue.city
+                      ? `Other ${primaryCat.category_name} venues in ${venue.city}`
+                      : venue.city ? `More venues in ${venue.city}` : 'Nearby Venues'}
+                  </h2>
+                </div>
+                <ul className="venue-nearby-list">
+                  {venue.nearby_venues.map(v => (
+                    <li key={v.slug} className="venue-nearby-item">
+                      <Link to={`/venue/${v.slug}`} className="venue-nearby-link">
+                        <span className="venue-nearby-name">{v.name}</span>
+                        {v.city && <span className="venue-nearby-city">{v.city}</span>}
+                      </Link>
+                      {v.average_rating > 0 && (
+                        <span className="venue-nearby-rating">★ {v.average_rating}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
+            {/* Related venues */}
+            {venue.related_venues?.length > 0 && (
+              <div className="wiki-box">
+                <div className="wiki-box-header">
+                  <h2>{primaryCat?.category_name ? `More ${primaryCat.category_name} venues` : 'Related Venues'}</h2>
+                  {primaryCat && (
+                    <Link to={`/category/${primaryCat.category_slug}`} style={{ fontSize: 12, color: 'var(--link)' }}>
+                      Browse all →
+                    </Link>
+                  )}
+                </div>
+                <div className="venue-related-grid">
+                  {venue.related_venues.map(v => (
+                    <Link key={v.slug} to={`/venue/${v.slug}`} className="venue-related-card">
+                      <span className="venue-related-name">{v.name}</span>
+                      <span className="venue-related-meta">
+                        {v.city && <span>{v.city}</span>}
+                        {v.average_rating > 0 && <span>★ {v.average_rating}</span>}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions + Report + Embed */}
+            <div className="wiki-box">
+              <div className="wiki-box-header">
+                <h2>Actions</h2>
+              </div>
+              <div className="venue-actions-row">
+                <Link to={`/venue/${venueSlug}/edit`} className="btn-edit">Edit venue</Link>
+                <button className="btn-edit" onClick={() => navigate(`/venue/${venueSlug}/add-category`)}>
+                  + Add Category
+                </button>
+                <button className="btn-report" onClick={() => setReportOpen(!reportOpen)}>
+                  {reportOpen ? 'Cancel' : 'Report an issue'}
+                </button>
+                {reportSent && <span className="report-sent">✓ Report sent</span>}
+              </div>
+
+              {reportOpen && (
+                <div className="report-form venue-report-form">
+                  <h3>Report an Issue</h3>
+                  <select value={reportReason} onChange={e => setReportReason(e.target.value)} className="filter-select">
+                    <option value="">Select reason…</option>
+                    <option value="closed">Venue Closed / Not Found</option>
+                    <option value="wrong_location">Wrong Location on Map</option>
+                    <option value="wrong_info">Incorrect Information</option>
+                    <option value="inappropriate">Inappropriate Content</option>
+                    <option value="duplicate">Duplicate Entry</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <textarea
+                    placeholder="Additional details (optional)"
+                    value={reportDesc}
+                    onChange={e => setReportDesc(e.target.value)}
+                    className="report-textarea"
+                  />
+                  <button onClick={submitReport} disabled={!reportReason} className="btn-apply">Submit Report</button>
+                </div>
+              )}
+
+              <div className="venue-embed-toggle">
+                <button className="venue-embed-btn" onClick={() => setEmbedOpen(v => !v)}>
+                  {embedOpen ? '▲ Hide embed code' : '▼ Embed this venue'}
+                </button>
+              </div>
+              {embedOpen && (
+                <div className="venue-embed-body">
+                  <p className="venue-embed-hint">Copy this snippet to embed a link on your website:</p>
+                  <textarea
+                    readOnly
+                    className="venue-embed-code"
+                    value={`<a href="https://mapedia.org/venue/${venueSlug}" target="_blank" rel="noopener noreferrer">${venue?.name} on Mapedia</a>`}
+                    onClick={e => e.target.select()}
+                  />
+                  <p className="venue-embed-license">
+                    Data under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> — attribution required.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
             <div className="venue-footer">
               <span>
                 Added:{' '}
@@ -774,10 +699,17 @@ function VenuePage() {
             </div>
           </div>
 
-          {/* ── SIDEBAR ── */}
-          <aside className="venue-sidebar">
+          {/* ── RIGHT: Sidebar ── */}
+          <aside className="wiki-col-side">
+
+            {/* Map */}
             {venue.latitude && venue.longitude && (
-              <div className="venue-map" itemProp="geo" itemScope itemType="https://schema.org/GeoCoordinates">
+              <div
+                className="wiki-box"
+                itemProp="geo"
+                itemScope
+                itemType="https://schema.org/GeoCoordinates"
+              >
                 <meta itemProp="latitude" content={venue.latitude} />
                 <meta itemProp="longitude" content={venue.longitude} />
                 <MapContainer
@@ -794,13 +726,15 @@ function VenuePage() {
                 </MapContainer>
                 <a
                   href={`https://www.openstreetmap.org/?mlat=${venue.latitude}&mlon=${venue.longitude}&zoom=16`}
-                  target="_blank" rel="noreferrer" className="osm-link"
+                  target="_blank" rel="noreferrer"
+                  className="osm-link"
                 >
                   View on OpenStreetMap ↗
                 </a>
                 <a
                   href={`https://maps.google.com/?q=${venue.latitude},${venue.longitude}`}
-                  target="_blank" rel="noreferrer" className="osm-link"
+                  target="_blank" rel="noreferrer"
+                  className="osm-link"
                   style={{ borderTop: '1px solid var(--border)' }}
                 >
                   Open on Google Maps ↗
@@ -808,9 +742,10 @@ function VenuePage() {
               </div>
             )}
 
-            <div className="venue-info-box">
-              <div className="info-box-title">About this venue</div>
-              <table className="info-table">
+            {/* Infobox */}
+            <div className="wiki-infobox">
+              <div className="wiki-infobox-title">About this venue</div>
+              <table>
                 <tbody>
                   <tr>
                     <td>Categories</td>
@@ -829,14 +764,14 @@ function VenuePage() {
                       <td><span className="info-rating">{venue.average_rating} ★ ({venue.rating_count})</span></td>
                     </tr>
                   )}
-                  {venue.contributors && venue.contributors.length > 0 && (
+                  {venue.contributors?.length > 0 && (
                     <tr>
                       <td>Contributors</td>
                       <td>
                         {venue.contributors.map((c, i) => (
                           <span key={i}>
                             {i > 0 && ', '}
-                            <Link to={`/profile/${c.username}`} className="contributor-link">@{c.username}</Link>
+                            <Link to={`/profile/${c.username}`}>@{c.username}</Link>
                           </span>
                         ))}
                       </td>
@@ -845,31 +780,26 @@ function VenuePage() {
                   {venue.city && (
                     <tr>
                       <td>City</td>
-                      <td>
-                        <Link to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}>
-                          {venue.city}
-                        </Link>
-                      </td>
+                      <td><Link to={`/city/${venue.city.toLowerCase().replace(/\s+/g, '-')}`}>{venue.city}</Link></td>
                     </tr>
                   )}
                   {venue.country && <tr><td>Country</td><td>{venue.country}</td></tr>}
                   {venue.latitude && (
                     <tr>
-                      <td>Coordinates</td>
+                      <td>Coords</td>
                       <td className="venue-coords">{venue.latitude}, {venue.longitude}</td>
                     </tr>
                   )}
                   <tr>
                     <td>License</td>
                     <td>
-                      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">
-                        CC BY-SA 4.0
-                      </a>
+                      <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+
           </aside>
         </div>
       </main>

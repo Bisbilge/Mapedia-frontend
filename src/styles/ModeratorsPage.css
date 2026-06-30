@@ -152,3 +152,35 @@
 .mods-add-btn:hover {
   opacity: 0.9;
 }
+@media (max-width: 600px) {
+  .mods-main {
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  .mods-box {
+    padding: 16px;
+  }
+
+  .mods-title {
+    font-size: 22px;
+  }
+
+  .mods-add-row {
+    flex-direction: column;
+  }
+
+  .mods-input {
+    width: 100%;
+  }
+
+  .mods-add-btn {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .mods-remove-btn {
+    padding: 8px 12px;
+    min-height: 40px;
+  }
+}

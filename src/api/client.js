@@ -5,6 +5,29 @@ const api = axios.create({
   timeout: 30000,
 });
 
+// Simple in-memory GET cache (60 second TTL, max 100 entries)
+const cache = new Map();
+const CACHE_TTL = 60 * 1000;
+const CACHE_MAX = 100;
+
+const CACHEABLE = ['/categories/', '/categories/?', '/venues/?search'];
+
+function isCacheable(url) {
+  return CACHEABLE.some(prefix => url.includes(prefix));
+}
+
+api.interceptors.request.use((config) => {
+  if (config.method === 'get' && isCacheable(config.url)) {
+    const key = config.url + JSON.stringify(config.params || {});
+    const cached = cache.get(key);
+    if (cached && Date.now() - cached.ts < CACHE_TTL) {
+      config._fromCache = true;
+      config._cacheData = cached.data;
+    }
+  }
+  return config;
+});
+
 // Attach access token to every request
 api.interceptors.request.use(
   (config) => {
@@ -13,6 +36,22 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Store successful GET responses in cache
+api.interceptors.response.use(
+  (response) => {
+    const config = response.config;
+    if (config.method === 'get' && isCacheable(config.url)) {
+      const key = config.url + JSON.stringify(config.params || {});
+      if (cache.size >= CACHE_MAX) {
+        cache.delete(cache.keys().next().value);
+      }
+      cache.set(key, { data: response.data, ts: Date.now() });
+    }
+    return response;
   },
   (error) => Promise.reject(error)
 );

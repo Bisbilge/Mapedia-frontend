@@ -45,7 +45,7 @@
   gap: 0;
   margin-bottom: 20px;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--bg-elevated);
 }
 
 .categories-stat {
@@ -79,10 +79,20 @@
    TOOLBAR
    ═══════════════════════════════════════════════════════════════ */
 
+.categories-toolbar-wrap {
+  padding: 10px 12px;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+}
+
 .categories-toolbar {
   display: flex;
   gap: 0;
   margin-bottom: 16px;
+}
+
+.categories-toolbar-wrap .categories-toolbar {
+  margin-bottom: 0;
 }
 
 .categories-search {
@@ -92,7 +102,7 @@
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
-  background: #fff;
+  background: var(--bg-elevated);
 }
 
 .categories-search:focus {
@@ -106,7 +116,7 @@
   border-left: none;
   font-size: 13px;
   font-family: inherit;
-  background: #fff;
+  background: var(--bg-elevated);
   cursor: pointer;
 }
 
@@ -134,9 +144,10 @@
 
 /* Results info */
 .categories-results-info {
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--text-light);
-  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -145,7 +156,7 @@
 .categories-clear-search {
   padding: 2px 8px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--bg-elevated);
   font-size: 12px;
   cursor: pointer;
   font-family: inherit;
@@ -168,7 +179,7 @@
 .categories-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
 }
 
@@ -326,7 +337,7 @@
 .categories-empty {
   padding: 48px;
   text-align: center;
-  background: white;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
 }
 
@@ -338,7 +349,7 @@
 .categories-clear-btn {
   padding: 8px 16px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--bg-elevated);
   font-size: 13px;
   cursor: pointer;
   font-family: inherit;
@@ -366,7 +377,7 @@
   display: flex;
   align-items: center;
   gap: 0;
-  padding-top: 16px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
@@ -381,7 +392,7 @@
   padding: 6px 12px;
   border: 1px solid var(--border);
   margin-left: -1px;
-  background: #fff;
+  background: var(--bg-elevated);
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;

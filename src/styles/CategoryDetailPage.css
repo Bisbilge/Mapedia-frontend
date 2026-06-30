@@ -28,7 +28,7 @@
 }
 
 .catdetail-box {
-  background: white;
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
 }
 
@@ -377,6 +377,53 @@
   text-decoration: underline;
 }
 
+/* ── Map clickable placeholder ── */
+.catdetail-map-clickable {
+  height: 200px;
+  background: var(--nav-bg);
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.catdetail-map-clickable::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    var(--border) 20px,
+    var(--border) 21px
+  );
+  opacity: 0.15;
+}
+
+.catdetail-map-clickable:hover {
+  background: var(--accent);
+}
+
+.catdetail-map-overlay {
+  position: relative;
+  z-index: 1;
+}
+
+.catdetail-map-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--link);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid var(--link);
+}
+
 /* RESPONSIVE */
 @media (max-width: 600px) {
   .catdetail-actions {
@@ -412,4 +459,235 @@
   .catdetail-icon {
     font-size: 28px;
   }
+}
+/* ── Stats bar ── */
+.catdetail-stats-bar {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  margin-bottom: 20px;
+}
+
+.catdetail-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.catdetail-stat strong {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--link);
+  line-height: 1.1;
+}
+
+.catdetail-stat span {
+  font-size: 11px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 3px;
+}
+
+.catdetail-stat-sep {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.catdetail-stat-follow {
+  padding: 12px 16px;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Map preview ── */
+.catdetail-map-preview {
+  height: 180px;
+  background: var(--nav-bg);
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.catdetail-map-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 20px,
+    var(--border) 20px,
+    var(--border) 21px
+  );
+  opacity: 0.12;
+}
+
+.catdetail-map-preview:hover {
+  background: var(--accent);
+}
+
+.catdetail-map-overlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.catdetail-map-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.catdetail-map-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.catdetail-map-hint {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* ── Schema note ── */
+.catdetail-schema-note {
+  padding: 10px 14px 0;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ── Venue table rating column ── */
+.catdetail-venue-rating {
+  font-size: 13px;
+  color: #d97706;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.catdetail-venue-no-rating {
+  color: var(--text-light);
+}
+
+/* ── Embed ── */
+.catdetail-embed-toggle {
+  padding: 10px 14px;
+}
+
+.catdetail-embed-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--link);
+  font-size: 13px;
+  padding: 0;
+  font-family: inherit;
+}
+
+.catdetail-embed-btn:hover { text-decoration: underline; }
+
+.catdetail-embed-body {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.catdetail-embed-hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.catdetail-embed-code {
+  width: 100%;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  resize: vertical;
+  min-height: 60px;
+  box-sizing: border-box;
+  color: var(--text);
+  outline: none;
+}
+
+.catdetail-embed-license {
+  font-size: 11px;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* ── Category icon in title ── */
+.catdetail-icon {
+  margin-right: 10px;
+  font-size: 28px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .catdetail-stats-bar {
+    flex-wrap: wrap;
+  }
+
+  .catdetail-stat {
+    flex: 1 1 40%;
+  }
+
+  .catdetail-stat-sep {
+    display: none;
+  }
+
+  .catdetail-stat-follow {
+    flex: 1 1 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* ── Follow button ── */
+.catdetail-follow-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-light);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.catdetail-follow-btn:hover {
+  border-color: var(--link);
+  color: var(--link);
+}
+
+.catdetail-follow-btn-active {
+  background: var(--accent);
+  border-color: var(--link);
+  color: var(--link);
+}
+
+.catdetail-follow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
