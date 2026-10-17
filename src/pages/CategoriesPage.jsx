@@ -26,19 +26,24 @@ function CategoriesPage() {
   const loadCategories = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/categories/')
-      const data = res.data.results || res.data
+      const res = await api.get('/categories/?limit=5000')
+      const raw = res.data?.results || res.data
+      const data = Array.isArray(raw) ? raw : []
+      
       setCategories(data)
       const totalVenues = data.reduce((sum, cat) => sum + (cat.venue_count || 0), 0)
-      setStats({ totalCategories: data.length, totalVenues })
+      setStats({ totalCategories: res.data?.count || data.length, totalVenues })
     } catch (err) {
       console.error('Categories load error:', err)
+      setCategories([])
     } finally {
       setLoading(false)
     }
   }
 
-  const filteredCategories = categories.filter(cat => {
+  const safeCategories = Array.isArray(categories) ? categories : []
+
+  const filteredCategories = safeCategories.filter(cat => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return (
@@ -49,12 +54,12 @@ function CategoriesPage() {
   })
 
   const sortedCategories = [...filteredCategories].sort((a, b) => {
-    if (sortBy === 'name') return a.name.localeCompare(b.name)
-    if (sortBy === '-name') return b.name.localeCompare(a.name)
+    if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '')
+    if (sortBy === '-name') return (b.name || '').localeCompare(a.name || '')
     if (sortBy === '-venue_count') return (b.venue_count || 0) - (a.venue_count || 0)
     if (sortBy === 'venue_count') return (a.venue_count || 0) - (b.venue_count || 0)
     if (sortBy === '-field_count') return (b.field_count || 0) - (a.field_count || 0)
-    if (sortBy === '-created') return new Date(b.created_at) - new Date(a.created_at)
+    if (sortBy === '-created') return new Date(b.created_at || 0) - new Date(a.created_at || 0)
     return 0
   })
 
@@ -79,7 +84,7 @@ function CategoriesPage() {
     return range
   }
 
-  const topCategories = [...categories]
+  const topCategories = [...safeCategories]
     .sort((a, b) => (b.venue_count || 0) - (a.venue_count || 0))
     .slice(0, 3)
     .map(c => c.id)
@@ -124,7 +129,7 @@ function CategoriesPage() {
             <span className="categories-stat-label">Total Venues</span>
           </div>
           <div className="categories-stat">
-            <span className="categories-stat-value">{categories.filter(c => c.venue_count > 0).length}</span>
+            <span className="categories-stat-value">{safeCategories.filter(c => (c.venue_count || 0) > 0).length}</span>
             <span className="categories-stat-label">Active</span>
           </div>
         </div>
@@ -214,7 +219,7 @@ function CategoriesPage() {
                               </Link>
                             </td>
                             <td className="col-venues">
-                              <span className={`venue-count ${cat.venue_count > 0 ? 'has-venues' : 'no-venues'}`}>
+                              <span className={`venue-count ${(cat.venue_count || 0) > 0 ? 'has-venues' : 'no-venues'}`}>
                                 {cat.venue_count || 0}
                               </span>
                             </td>
