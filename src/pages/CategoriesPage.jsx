@@ -26,7 +26,7 @@ function CategoriesPage() {
   const loadCategories = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/categories/?limit=5000')
+      const res = await api.get('/categories/')
       const raw = res.data?.results || res.data
       const data = Array.isArray(raw) ? raw : []
       
