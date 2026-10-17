@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://mapedia-ql15.onrender.com/api/v1';
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://mapedia-ql15.onrender.com/api/v1',
   timeout: 30000,
 });
 
@@ -72,8 +72,9 @@ api.interceptors.response.use(
       }
 
       try {
-        const res = await axios.post('https://mapedia.org/api/v1/auth/refresh/', {
-          refresh: refreshToken
+        const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://mapedia-ql15.onrender.com/api/v1';
+        const res = await axios.post(`${baseURL}/auth/refresh/`, {
+          refresh: refreshToken,
         });
 
         const newAccess = res.data.access;
