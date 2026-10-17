@@ -26,13 +26,19 @@ function CategoriesPage() {
   const loadCategories = async () => {
     setLoading(true)
     try {
+      // Backend varsayılan DRF formatında çağrılıyor
       const res = await api.get('/categories/')
+      
+      // Yanıtın dizi mi yoksa DRF pagination (results) mi olduğunu kontrol ediyoruz
       const raw = res.data?.results || res.data
       const data = Array.isArray(raw) ? raw : []
       
       setCategories(data)
       const totalVenues = data.reduce((sum, cat) => sum + (cat.venue_count || 0), 0)
-      setStats({ totalCategories: res.data?.count || data.length, totalVenues })
+      setStats({
+        totalCategories: res.data?.count || data.length,
+        totalVenues
+      })
     } catch (err) {
       console.error('Categories load error:', err)
       setCategories([])
@@ -47,9 +53,9 @@ function CategoriesPage() {
     if (!search.trim()) return true
     const q = search.toLowerCase()
     return (
-      cat.name?.toLowerCase().includes(q) ||
-      cat.description?.toLowerCase().includes(q) ||
-      cat.slug?.toLowerCase().includes(q)
+      (cat.name && cat.name.toLowerCase().includes(q)) ||
+      (cat.description && cat.description.toLowerCase().includes(q)) ||
+      (cat.slug && cat.slug.toLowerCase().includes(q))
     )
   })
 
@@ -140,7 +146,7 @@ function CategoriesPage() {
           <div className="wiki-col-main">
 
             <div className="wiki-box">
-              {/* Toolbar inside box header area */}
+              {/* Toolbar */}
               <div className="categories-toolbar-wrap">
                 <div className="categories-toolbar">
                   <input
