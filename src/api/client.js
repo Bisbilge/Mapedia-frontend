@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://mapedia.org/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://mapedia-ql15.onrender.com/api/v1'
   timeout: 30000,
 });
 
